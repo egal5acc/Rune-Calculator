@@ -1,0 +1,141 @@
+/* style.css — Rune Tools (deutsch) */
+/* Responsive, zentriert, skaliert auf großen Bildschirmen. Dark rune theme. */
+
+:root{
+  --bg-dark: #050505;
+  --panel-bg: rgba(16,16,16,0.96);
+  --muted: #bfb7b5;
+  --radius: 14px;
+  --scale: 1;
+}
+
+/* scale up on wide screens */
+@media (min-width:1200px){ :root{ --scale: 1.15 } }
+@media (min-width:1600px){ :root{ --scale: 1.3 } }
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family: Inter, "Trebuchet MS", Arial, sans-serif;
+  background: radial-gradient(circle at 10% 10%, #060606 0%, #0b0b0b 45%, #070707 100%);
+  color:#efe8e4;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow:auto;
+}
+
+/* animated subtle background veil */
+.bg-veil{
+  position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(150,40,40,0.03) 0%, transparent 8%),
+    radial-gradient(circle at 85% 82%, rgba(50,120,40,0.02) 0%, transparent 10%);
+  filter: blur(8px); pointer-events:none;
+}
+
+/* center wrapper */
+.wrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px;
+  z-index:5;
+}
+
+/* floating card */
+.card{
+  width:min(94%, 880px);
+  background:linear-gradient(180deg, rgba(18,18,18,0.98), rgba(14,14,14,0.98));
+  border-radius: calc(var(--radius) * 1px);
+  padding: calc(18px * var(--scale));
+  box-shadow: 0 40px 120px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.03);
+  position:relative;
+}
+
+/* brand */
+.brand-row{display:flex;justify-content:center;margin-bottom:8px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{font-size:calc(22px * var(--scale))}
+.brand-title{color:#e6c793;font-size:calc(20px * var(--scale));letter-spacing:0.6px}
+
+/* tabs */
+.tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.tab{
+  display:inline-flex;align-items:center;gap:8px;padding:calc(8px * var(--scale)) calc(16px * var(--scale));
+  border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);
+  color:var(--muted);cursor:pointer;font-weight:800;font-size:calc(13px * var(--scale));
+  transition:all .16s ease;min-width:120px;justify-content:center;
+}
+.tab .emoji{font-size:calc(16px * var(--scale))}
+.tab.active{ transform:translateY(-4px); box-shadow:0 18px 40px rgba(0,0,0,0.45); color:#111 }
+
+/* panels */
+.panels{display:block}
+.panel{display:none}
+.panel.active{display:block;animation:panelIn .34s ease both}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* accent orbs - container */
+.accent-orbs{position:absolute;inset:0;pointer-events:none;z-index:0;border-radius:inherit;overflow:hidden}
+.accent-orbs .orb{position:absolute;border-radius:50%;filter:blur(10px);opacity:0.45;transform:translate3d(0,0,0)}
+
+/* xp orbs (warm) */
+.xp-orbs .orb:nth-child(1){width:140px;height:140px;left:6%;top:8%;background:radial-gradient(circle,#b8860b 0%, #4b0a0a 60%)}
+.xp-orbs .orb:nth-child(2){width:80px;height:80px;left:72%;top:18%;background:radial-gradient(circle,#d9b44a 0%, #5c0f0f 60%)}
+.xp-orbs .orb:nth-child(3){width:160px;height:160px;left:50%;top:60%;background:radial-gradient(circle,#b68a19 0%, #410707 60%)}
+
+/* boost orbs (purple/cyan) */
+.boost-orbs .orb:nth-child(1){width:120px;height:120px;left:8%;top:12%;background:radial-gradient(circle,#7c4cff 0%, #0b2244 60%) ;opacity:0.26}
+.boost-orbs .orb:nth-child(2){width:180px;height:180px;left:62%;top:6%;background:radial-gradient(circle,#5be0ff 0%, #16052b 60%);opacity:0.18}
+.boost-orbs .orb:nth-child(3){width:90px;height:90px;left:45%;top:60%;background:radial-gradient(circle,#9b6cff 0%, #241033 60%);opacity:0.22}
+
+/* time orbs (green) */
+.time-orbs .orb:nth-child(1){width:110px;height:110px;left:6%;top:68%;background:radial-gradient(circle,#79dd7a 0%, #07210a 60%)}
+.time-orbs .orb:nth-child(2){width:150px;height:150px;left:68%;top:10%;background:radial-gradient(circle,#c8ff8a 0%, #0a2a13 60%)}
+.time-orbs .orb:nth-child(3){width:70px;height:70px;left:40%;top:40%;background:radial-gradient(circle,#8ef0a4 0%, #052513 60%)}
+
+/* form layout */
+.panel h2{position:relative;z-index:2;color:#ffdba1;font-size:calc(18px * var(--scale));margin-bottom:6px}
+.panel .lead{margin:0 0 12px 0;color:var(--muted);font-size:calc(13px * var(--scale))}
+
+.form{position:relative;z-index:2}
+.form label{display:block;margin-top:12px;font-weight:700;color:#ffb6b6;font-size:calc(13px * var(--scale))}
+input, select{
+  width:100%;padding:calc(10px * var(--scale));margin-top:8px;border-radius:10px;
+  border:1px solid rgba(255,255,255,0.04);background:rgba(12,12,12,0.9);color:#f4e6d6;font-size:calc(14px * var(--scale));
+  box-shadow:inset 0 6px 18px rgba(0,0,0,0.46);
+}
+
+/* actions/buttons scale with screen */
+.actions{display:flex;gap:12px;margin-top:16px;align-items:center}
+.btn{flex:1;padding:calc(10px * var(--scale));border-radius:10px;border:none;font-weight:800;cursor:pointer;font-size:calc(14px * var(--scale))}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+.btn.primary{background:linear-gradient(90deg,#4b120f,#a86b2a);color:#fff;box-shadow:0 12px 30px rgba(168,107,42,0.12)}
+
+/* active tab visuals per target */
+.tab.active[data-target="xp"]{ background: linear-gradient(90deg,#5a1511,#a86b2a); color:#fff }
+.tab.active[data-target="boost"]{ background: linear-gradient(90deg,#421a4b,#7c4cff); color:#fff }
+.tab.active[data-target="time"]{ background: linear-gradient(90deg,#12321b,#79dd7a); color:#05110a }
+
+/* results and notices */
+.result{margin-top:14px;font-weight:800;color:#ffdca1;z-index:2}
+.notice{margin-top:12px;font-size:0.95rem;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted);z-index:2}
+.notice strong{color:#ffd27a}
+.xp-notice{border-left:4px solid rgba(184,134,11,0.65);color:#ffd6a6}
+.time-notice{border-left:4px solid rgba(20,140,80,0.6);color:#b9ffce}
+
+/* footer */
+.footer-note{margin-top:14px;text-align:center;color:rgba(255,255,255,0.28);font-size:0.9rem}
+
+/* responsive tweaks */
+@media (max-width:880px){
+  .card{padding:16px}
+  .tabs{gap:8px}
+}
+@media (max-width:520px){
+  :root{ --scale:0.95 }
+  .actions{flex-direction:column}
+  .actions .btn{width:100%}
+}
