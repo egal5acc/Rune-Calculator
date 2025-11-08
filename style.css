@@ -1,0 +1,166 @@
+:root {
+  --bg: #050505;
+  --card: #0d0d0d;
+  --text: #ff2a2a;
+  --accent: #ffd000;
+  --border: #222;
+  --radius: 14px;
+  --glow: 0 0 15px rgba(255, 208, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem;
+  margin: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 550px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.2);
+}
+
+/* --- Tabs --- */
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  flex: 1;
+  background: #151515;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 0.9rem;
+  border-radius: var(--radius);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 8px rgba(255, 208, 0, 0.5);
+}
+
+.tab:hover {
+  background: #202020;
+}
+
+.tab.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: bold;
+  text-shadow: none;
+}
+
+/* --- Tab Content --- */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  color: var(--accent);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+input, select {
+  padding: 0.7rem;
+  border-radius: var(--radius);
+  border: 1px solid #333;
+  background: #111;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* --- Buttons --- */
+.form-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.9rem;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: all 0.2s;
+  background: var(--accent);
+  color: #000;
+  box-shadow: var(--glow);
+}
+
+.btn:hover {
+  filter: brightness(1.2);
+}
+
+.btn.ghost {
+  background: #222;
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.btn.ghost:hover {
+  background: #333;
+}
+
+/* --- Info Text --- */
+.notice {
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--accent);
+  opacity: 0.9;
+  text-shadow: 0 0 10px var(--accent);
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 650px) {
+  .container {
+    max-width: 95%;
+    padding: 1.2rem;
+  }
+
+  .tab {
+    flex: 1 1 30%;
+    padding: 0.7rem;
+  }
+
+  input, select {
+    font-size: 0.95rem;
+  }
+}
