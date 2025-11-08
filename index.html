@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rune Tools</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" data-tab="xp">🧿 Rune XP</button>
+      <button class="tab" data-tab="boost">⚡ Rune Boost</button>
+      <button class="tab" data-tab="time">⏳ Rune Time</button>
+    </div>
+
+    <!-- Rune XP -->
+    <div class="tab-content active" id="xp">
+      <form>
+        <label>Current Level
+          <input type="number" placeholder="e.g. 120" />
+        </label>
+
+        <label>Target Level
+          <input type="number" placeholder="e.g. 150" />
+        </label>
+
+        <label>Rune Type
+          <select>
+            <option>Strength</option>
+            <option>Endurance</option>
+            <option>Psychic</option>
+            <option>Speed</option>
+            <option>Token</option>
+            <option>Soul</option>
+          </select>
+        </label>
+
+        <label>Current XP
+          <input type="text" placeholder="e.g. 1.8b" />
+        </label>
+
+        <label>XP needed per level
+          <input type="text" placeholder="e.g. 50m" />
+        </label>
+
+        <p class="notice">💡 Works up to <strong>SP XP</strong></p>
+
+        <div class="form-actions">
+          <button type="button" class="btn">Calculate</button>
+          <button type="reset" class="btn ghost">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Rune Boost -->
+    <div class="tab-content" id="boost">
+      <form>
+        <label>Rune Type
+          <select>
+            <option>Strength</option>
+            <option>Endurance</option>
+            <option>Psychic</option>
+            <option>Speed</option>
+            <option>Token</option>
+            <option>Soul</option>
+          </select>
+        </label>
+
+        <label>Rune Level
+          <input type="number" placeholder="e.g. 80" />
+        </label>
+
+        <div class="form-actions">
+          <button type="button" class="btn">Calculate</button>
+          <button type="reset" class="btn ghost">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Rune Time -->
+    <div class="tab-content" id="time">
+      <form>
+        <label>Rune Speed
+          <input type="number" placeholder="e.g. 2500" />
+        </label>
+
+        <label>Rune Clone
+          <input type="number" placeholder="e.g. 300" />
+        </label>
+
+        <label>XP Target
+          <input type="text" placeholder="e.g. 10t" />
+        </label>
+
+        <p class="notice">⏳ Estimated AFK times are approximate and depend on server tick speed.</p>
+
+        <div class="form-actions">
+          <button type="button" class="btn">Calculate</button>
+          <button type="reset" class="btn ghost">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
