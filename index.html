@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rune Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eceff1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            width: 320px;
+        }
+
+        .calculator h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .calculator label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .calculator input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .calculator button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .calculator button:hover {
+            background-color: #43a047;
+        }
+
+        .result {
+            margin-top: 25px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 17px;
+            color: #222;
+        }
+
+        .note {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Rune Calculator</h1>
+
+        <label for="currentLevel">Current Level:</label>
+        <input type="number" id="currentLevel" min="1" placeholder="e.g. 120">
+
+        <label for="targetLevel">Target Level:</label>
+        <input type="number" id="targetLevel" min="1" placeholder="e.g. 150">
