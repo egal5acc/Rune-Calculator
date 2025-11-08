@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rune Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <h1>Rune Calculator</h1>
+
+        <label for="currentLevel">Current Level:</label>
+        <input type="number" id="currentLevel" min="1" placeholder="e.g. 120">
+
+        <label for="targetLevel">Target Level:</label>
+        <input type="number" id="targetLevel" min="1" placeholder="e.g. 150">
+
+        <label for="currentXP">Current XP:</label>
+        <input type="text" id="currentXP" placeholder="e.g. 1.8b, 250m, 500k">
+
+        <label for="xpNextLevel">XP per Level:</label>
+        <input type="text" id="xpNextLevel" placeholder="e.g. 50m">
+
+        <button id="calculateBtn">Calculate</button>
+
+        <div class="result" id="result"></div>
+        <!-- ⚡ Clean footer text -->
+        <div class="note">⚔️ Works till SP XP ⚔️</div>
+    </div>
+
+    <script>
+        // Convert inputs like "1.8b", "250m", etc.
+        function parseXP(input) {
+            if (!input) return 0;
+            input = input.toLowerCase().replace(/,/g, '').trim();
+            const suffixes = {
+                sp: 1e24,
+                sx: 1e21,
+                qn: 1e18,
+                qd: 1e15,
+                t: 1e12,
+                b: 1e9,
+                m: 1e6,
+                k: 1e3
+            };
+
+            for (const key in suffixes) {
+                if (input.endsWith(key)) {
+                    const num = parseFloat(input.slice(0, -key.length));
+                    return isNaN(num) ? 0 : num * suffixes[key];
+                }
+            }
+
+            const value = parseFloat(input);
+            return isNaN(value) ? 0 : value;
+        }
+
+        // Format output like "1.23qd"
+        function formatXP(num) {
+            if (num < 1000) return num.toLocaleString();
+
+            const units = [
+                { value: 1e24, symbol: "sp" },
+                { value: 1e21, symbol: "sx" },
+                { value: 1e18, symbol: "qn" },
+                { value: 1e15, symbol: "qd" },
+                { value: 1e12, symbol: "t" },
+                { value: 1e9, symbol: "b" },
+                { value: 1e6, symbol: "m" },
+                { value: 1e3, symbol: "k" }
+            ];
+
+            for (let i = 0; i < units.length; i++) {
+                if (num >= units[i].value) {
+                    let formatted = (num / units[i].value).toFixed(2);
+                    formatted = formatted.replace(/\.00$/, "");
+                    return formatted + units[i].symbol;
+                }
+            }
+
+            return num.toLocaleString();
+        }
+
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const currentLevel = parseInt(document.getElementById('currentLevel').value);
+            const targetLevel = parseInt(document.getElementById('targetLevel').value);
+            const currentXP = parseXP(document.getElementById('currentXP').value);
+            const xpNextLevel = parseXP(document.getElementById('xpNextLevel').value);
+            const result = document.getElementById('result');
+
+            if (isNaN(currentLevel) || isNaN(targetLevel) || targetLevel <= currentLevel) {
+                result.textContent = "❌ Please enter valid levels (target > current).";
+                return;
+            }
+
+            const totalXPNeeded = xpNextLevel * (targetLevel - currentLevel);
+            const remainingXP = totalXPNeeded - currentXP;
+
+            let message;
+            if (remainingXP <= 0) {
+                message = "🎉 You’ve already reached your target!";
+            } else {
+                message = `You need ${formatXP(remainingXP)} XP to reach level ${targetLevel}.`;
+            }
+
+            result.textContent = message;
+        });
+    </script>
+</body>
+</html>
