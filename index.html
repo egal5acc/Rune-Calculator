@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rune Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            width: 350px;
+            max-width: 90%;
+        }
+
+        .calculator h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .calculator label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .calculator input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .calculator button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .calculator button:hover {
+            background-color: #43a047;
+        }
+
+        .result {
+            margin-top: 25px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 17px;
+            color: #222;
+        }
+
+        .note {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Rune Calculator</h1>
+
+        <label for="currentLevel">Current Level:</label>
+        <input type="number" id="currentLevel" min="1" placeholder="e.g. 120">
+
+        <label for="targetLevel">Target Level:</label>
+        <input type="number" id="targetLevel" min="1" placeholder="e.g. 150">
+
+        <label for="currentXP">Current XP:</label>
+        <input type="text" id="currentXP" placeholder="e.g. 1.8b, 250m, 500k">
+
+        <label for="xpNextLevel">XP per Level:</label>
+        <input type="text" id="xpNextLevel" placeholder="e.g. 50m">
+
+        <button id="calculateBtn">Calculate</button>
+
+        <div class="result" id="result"></div>
+        <div class="note">Supports k, m, b, t, qd, qn, sx, sp abbreviations</div>
+    </div>
+
+    <script>
+        // Convert user input like "1.8b" or "250m" into a number
+        function parseXP(input) {
+            if (!input) return 0;
+            input = input.toLowerCase().replace(/,/g, '').trim();
+            const suffixes = {
+                sp: 1e24,
+                sx: 1e21,
+                qn: 1e18,
+                qd: 1e15,
+                t: 1e12,
+                b: 1e9,
+                m: 1e6,
+                k: 1e3
+            };
+
+            for (const key in suffixes) {
+                if (input.endsWith(key)) {
+                    const num = parseFloat(input.slice(0, -key.length));
+                    return isNaN(num) ? 0 : num * suffixes[key];
+                }
+            }
+
+            const value = parseFloat(input);
+            return isNaN(value) ? 0 : value;
+        }
+
+        // Convert large numbers to readable format (e.g., 1.23qd)
+        function formatXP(num) {
+            if (num < 1000) return num.toLocaleString();
+
+            const units = [
+                { value: 1e24, symbol: "sp" },
+                { value: 1e21, symbol: "sx" },
+                { value: 1e18, symbol: "qn" },
+                { value: 1e15, symbol: "qd" },
+                { value: 1e12, symbol: "t" },
+                { value: 1e9, symbol: "b" },
+                { value: 1e6, symbol: "m" },
+                { value: 1e3, symbol: "k" }
+            ];
+
+            for (let i = 0; i < units.length; i++) {
+                if (num >= units[i].value) {
+                    let formatted = (num / units[i].value).toFixed(2);
+                    formatted = formatted.replace(/\.00$/, ""); // remove trailing zeros
+                    return formatted + units[i].symbol;
+                }
+            }
+
+            return num.toLocaleString();
+        }
+
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const currentLevel = parseInt(document.getElementById('currentLevel').value);
+            const targetLevel = parseInt(document.getElementById('targetLevel').value);
+            const currentXP = parseXP(document.getElementById('currentXP').value);
+            const xpNextLevel = parseXP(document.getElementById('xpNextLevel').value);
+            const result = document.getElementById('result');
+
+            if (isNaN(currentLevel) || isNaN(targetLevel) || targetLevel <= currentLevel) {
+                result.textContent = "❌ Please enter valid levels (target > current).";
+                return;
+            }
+
+            // Linear XP growth (can be customized later)
+            const totalXPNeeded = xpNextLevel * (targetLevel - currentLevel);
+            const remainingXP = totalXPNeeded - currentXP;
+
+            let message;
+            if (remainingXP <= 0) {
+                message = "🎉 You’ve already reached your target!";
+            } else {
+                message = `You need ${formatXP(remainingXP)} XP to reach level ${targetLevel}.`;
+            }
+
+            result.textContent = message;
+        });
+    </script>
+</body>
+</html>
