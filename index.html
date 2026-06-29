@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slayer Inc Calculator</title>
+<title>Slayer Inc Rune Calculator</title>
 <style>
     :root {
         --bg-main: #0b0d10;
@@ -229,7 +229,7 @@
         <div class="tabs" id="tabs-container"></div>
         <div class="cards-grid" id="cards-container"></div>
         <div id="xp-message" style="display:none; text-align:center; padding: 40px; color: var(--text-muted); font-size: 16px; font-weight: bold;">
-            Gleiche deine Level in der oberen Box ab, um die exakt benötigten XP zu sehen.
+            Match your levels in the box above to see the exact XP required.
         </div>
     </div>
 </div>
@@ -363,8 +363,8 @@ function initDropdowns() {
 }
 
 function renderTabs() {
-    // Hier fügen wir den "XP Calculator" Tab hinten an
-    const tabs = Object.keys(DATA).concat(["XP Calculator"]);
+    // XP Calculator is now the first tab, followed by all Rune Tabs
+    const tabs = ["XP Calculator"].concat(Object.keys(DATA));
     const cont = document.getElementById("tabs-container");
     cont.innerHTML = tabs.map(tab => 
         `<div class="tab-btn ${tab===currentTab?'active':''}" onclick="setTab('${tab}')">${tab}</div>`
@@ -375,7 +375,7 @@ function setTab(tab) {
     currentTab = tab;
     renderTabs();
     
-    // Toggle-Logik zwischen Rune-Settings und XP-Settings
+    // Toggle logic between Rune Settings and XP Settings
     if (tab === "XP Calculator") {
         document.getElementById("rune-controls").style.display = "none";
         document.getElementById("xp-controls").style.display = "grid";
@@ -408,11 +408,11 @@ function calculateXP() {
     const E = parseFloat(document.getElementById("xp-end").value) || 0;
     
     if (E <= S) {
-        document.getElementById("xp-result").value = "0 (E muss > S sein)";
+        document.getElementById("xp-result").value = "0 (E must be > S)";
         return;
     }
     
-    // Formel für XP
+    // Formula for XP
     const xp = 500 * (Math.pow(1.2, E) - Math.pow(1.2, S));
     document.getElementById("xp-result").value = formatNum(xp);
 }
@@ -451,7 +451,7 @@ function calculate() {
 
     let html = "";
 
-    // Sicherheit, falls der aktuelle Tab in DATA nicht existiert (z.B. beim XP Calc)
+    // Safety check in case the current tab isn't in DATA (e.g. for the XP Calc)
     if (!DATA[currentTab]) return;
 
     DATA[currentTab].forEach(rune => {
@@ -512,7 +512,7 @@ function calculate() {
 
 initDropdowns();
 
-// Event Listener für beide Bereiche in den Local Storage
+// Event listeners for storing values in Local Storage
 const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
 inputIds.forEach(id => {
     const el = document.getElementById(id);
