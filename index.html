@@ -174,7 +174,9 @@
 <div class="container">
     <div class="panel">
         <h1>Slayer Inc Rune Calculator</h1>
-        <div class="input-grid">
+        
+        <!-- RUNE CALCULATOR CONTROLS -->
+        <div class="input-grid" id="rune-controls">
             <div class="input-group">
                 <label>Rune Speed (sec)</label>
                 <input type="number" id="speed" value="0.1" step="0.01">
@@ -198,6 +200,22 @@
                 <input type="number" id="clone" value="3">
             </div>
         </div>
+
+        <!-- XP CALCULATOR CONTROLS (Hidden by default) -->
+        <div class="input-grid" id="xp-controls" style="display: none;">
+            <div class="input-group">
+                <label>Current Level (S)</label>
+                <input type="number" id="xp-start" value="1" min="1">
+            </div>
+            <div class="input-group">
+                <label>Target Level (E)</label>
+                <input type="number" id="xp-end" value="10" min="2">
+            </div>
+            <div class="input-group">
+                <label>Required XP</label>
+                <input type="text" id="xp-result" readonly style="color: var(--c-secret); font-weight: bold; background: var(--bg-box); cursor: default;">
+            </div>
+        </div>
         
         <div id="error-box" class="error-box">⚠️ SYSTEM ERROR: Rune Speed must be between 0.08s and 1.00s!</div>
 
@@ -210,6 +228,9 @@
     <div class="panel">
         <div class="tabs" id="tabs-container"></div>
         <div class="cards-grid" id="cards-container"></div>
+        <div id="xp-message" style="display:none; text-align:center; padding: 40px; color: var(--text-muted); font-size: 16px; font-weight: bold;">
+            Gleiche deine Level in der oberen Box ab, um die exakt benötigten XP zu sehen.
+        </div>
     </div>
 </div>
 
@@ -264,8 +285,6 @@ function formatTime(sec) {
 }
 
 const DATA = {
-    XPCalculator: [
-    ],
     Starter: [
         { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "100"}] },
         { r: "Uncommon", c: "6.06", t: "uncommon", s: [{n: "Power", v: "+25", nd: "313"}, {n: "Player XP", v: "+5", nd: "143"}] },
@@ -344,8 +363,10 @@ function initDropdowns() {
 }
 
 function renderTabs() {
+    // Hier fügen wir den "XP Calculator" Tab hinten an
+    const tabs = Object.keys(DATA).concat(["XP Calculator"]);
     const cont = document.getElementById("tabs-container");
-    cont.innerHTML = Object.keys(DATA).map(tab => 
+    cont.innerHTML = tabs.map(tab => 
         `<div class="tab-btn ${tab===currentTab?'active':''}" onclick="setTab('${tab}')">${tab}</div>`
     ).join("");
 }
@@ -353,12 +374,47 @@ function renderTabs() {
 function setTab(tab) {
     currentTab = tab;
     renderTabs();
-    calculate();
+    
+    // Toggle-Logik zwischen Rune-Settings und XP-Settings
+    if (tab === "XP Calculator") {
+        document.getElementById("rune-controls").style.display = "none";
+        document.getElementById("xp-controls").style.display = "grid";
+        
+        document.getElementById("error-box").style.display = "none";
+        document.getElementById("global-stats-bar").style.display = "none";
+        
+        document.getElementById("cards-container").style.display = "none";
+        document.getElementById("xp-message").style.display = "block";
+        
+        calculateXP();
+    } else {
+        document.getElementById("rune-controls").style.display = "grid";
+        document.getElementById("xp-controls").style.display = "none";
+        
+        document.getElementById("cards-container").style.display = "grid";
+        document.getElementById("xp-message").style.display = "none";
+        
+        calculate();
+    }
 }
 
 function getMultiplier(suffixStr) {
     const found = SUFFIXES.find(x => x.s === suffixStr);
     return found ? found.v : 1;
+}
+
+function calculateXP() {
+    const S = parseFloat(document.getElementById("xp-start").value) || 0;
+    const E = parseFloat(document.getElementById("xp-end").value) || 0;
+    
+    if (E <= S) {
+        document.getElementById("xp-result").value = "0 (E muss > S sein)";
+        return;
+    }
+    
+    // Formel für XP
+    const xp = 500 * (Math.pow(1.2, E) - Math.pow(1.2, S));
+    document.getElementById("xp-result").value = formatNum(xp);
 }
 
 function calculate() {
@@ -395,29 +451,32 @@ function calculate() {
 
     let html = "";
 
+    // Sicherheit, falls der aktuelle Tab in DATA nicht existiert (z.B. beim XP Calc)
+    if (!DATA[currentTab]) return;
+
     DATA[currentTab].forEach(rune => {
-const baseDenom = parseStringValue(rune.c);
-const currentDenom = baseDenom / luck;
+        const baseDenom = parseStringValue(rune.c);
+        const currentDenom = baseDenom / luck;
 
-const currentIndex = DATA[currentTab].indexOf(rune);
-const nextRune = DATA[currentTab][currentIndex + 1];
+        const currentIndex = DATA[currentTab].indexOf(rune);
+        const nextRune = DATA[currentTab][currentIndex + 1];
 
-let isNA = (runsPerSec <= 0);
+        let isNA = (runsPerSec <= 0);
 
-if (nextRune) {
-    const nextDenom = parseStringValue(nextRune.c) / luck;
+        if (nextRune) {
+            const nextDenom = parseStringValue(nextRune.c) / luck;
 
-    // Hide this rune if the next tier has already reached 1/1
-    if (nextDenom <= 1) {
-        isNA = true;
-    }
-}
+            if (nextDenom <= 1) {
+                isNA = true;
+            }
+        }
 
-const displayDenom = Math.max(currentDenom, 1);
+        const displayDenom = Math.max(currentDenom, 1);
 
-const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
-const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
-const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
+        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
+        const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
+        const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
+        
         html += `
         <div class="card">
             <div class="card-header">
@@ -453,18 +512,25 @@ const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
 
 initDropdowns();
 
-const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'];
+// Event Listener für beide Bereiche in den Local Storage
+const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
 inputIds.forEach(id => {
     const el = document.getElementById(id);
+    if (!el) return;
+
     if(localStorage.getItem('slayer_v3_'+id)) el.value = localStorage.getItem('slayer_v3_'+id);
-    el.addEventListener('input', () => {
+    
+    const handler = () => {
         localStorage.setItem('slayer_v3_'+id, el.value);
-        calculate();
-    });
-    el.addEventListener('change', () => {
-        localStorage.setItem('slayer_v3_'+id, el.value);
-        calculate();
-    });
+        if (currentTab === "XP Calculator") {
+            calculateXP();
+        } else {
+            calculate();
+        }
+    };
+    
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
 });
 
 renderTabs();
