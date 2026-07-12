@@ -505,7 +505,18 @@ ${hidden ? "🙈" : "👁️"}
                 <div class="card-title ${rune.t}">${rune.r}</div>
                 <div class="card-chance">Base: 1 in ${formatNum(baseDenom)} | Current: ${chanceStr}</div>
             </div>`;
-
+if(hidden){
+    html += `
+    <div style="
+        text-align:center;
+        color:#888;
+        padding:25px;
+    ">
+        Rune Hidden
+    </div>
+    </div>`;
+    return;
+}
         rune.s.forEach(stat => {
             const needVal = parseStringValue(stat.nd);
             const timeSec = (!isNA && expectedDropsPerSec > 0) ? (needVal / expectedDropsPerSec) : Infinity;
