@@ -490,7 +490,18 @@ sortedRunes.forEach(rune => {
 html += `
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div class="card-header">
+            <div style="cursor:pointer;font-size:22px;"
+onclick="
+hiddenRunes['${rune.r}']=!hiddenRunes['${rune.r}'];
+localStorage.setItem('hiddenRunes',JSON.stringify(hiddenRunes));
+calculate();
+">
+${hidden ? "🙈" : "👁️"}
+</div>
+
+</div>
+
+<div class="card-header">
                 <div class="card-title ${rune.t}">${rune.r}</div>
                 <div class="card-chance">Base: 1 in ${formatNum(baseDenom)} | Current: ${chanceStr}</div>
             </div>`;
