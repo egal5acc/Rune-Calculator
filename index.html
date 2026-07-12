@@ -485,8 +485,11 @@ sortedRunes.forEach(rune => {
         const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
         const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
         
-        html += `
-        <div class="card">
+        const hidden = hiddenRunes[rune.r];
+
+html += `
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;">
             <div class="card-header">
                 <div class="card-title ${rune.t}">${rune.r}</div>
                 <div class="card-chance">Base: 1 in ${formatNum(baseDenom)} | Current: ${chanceStr}</div>
