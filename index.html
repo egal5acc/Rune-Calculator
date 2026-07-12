@@ -458,8 +458,12 @@ function calculate() {
     // Safety check in case the current tab isn't in DATA (e.g. for the XP Calc)
     if (!DATA[currentTab]) return;
 
-    DATA[currentTab].forEach(rune => {
-        const baseDenom = parseStringValue(rune.c);
+    const sortedRunes = [...DATA[currentTab]].sort((a,b)=>{
+    return (hiddenRunes[a.r] ? 1 : 0) - (hiddenRunes[b.r] ? 1 : 0);
+});
+
+sortedRunes.forEach(rune => {
+ parseStringValue(rune.c);
         const currentDenom = baseDenom / luck;
 
         const currentIndex = DATA[currentTab].indexOf(rune);
