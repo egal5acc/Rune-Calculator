@@ -344,7 +344,7 @@ const DATA = {
         { r: "Hurricane", c: "1.599SpVg", t: "Secret", s: [{ n: "Ice", v: "×4", nd: "3" }, { n: "Ore Damage", v: "×15", nd: "100" }, { n: "Cash", v: "×5", nd: "10k" }] }
   ]
 };
-
+const hiddenRunes = JSON.parse(localStorage.getItem("hiddenRunes") || "{}");
 let currentTab = "Starter";
 
 function initDropdowns() {
