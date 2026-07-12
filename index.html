@@ -311,11 +311,11 @@ function formatTime(sec) {
 
 const DATA = {
     Starter: [
-        { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "100"}] },
+        { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
         { r: "Uncommon", c: "6.06", t: "uncommon", s: [{n: "Power", v: "+25", nd: "313"}, {n: "Player XP", v: "+5", nd: "143"}] },
         { r: "Rare", c: "100.20", t: "rare", s: [{n: "Essence", v: "+125", nd: "625"}] },
         { r: "Epic", c: "1.252K", t: "epic", s: [{n: "Power", v: "+300", nd: "250"}, {n: "Golden Points", v: "+1.25", nd: "25"}] },
-        { r: "Legendary", c: "60.11K", t: "legendary", s: [{n: "Power", v: "+1.25K", nd: "78"}, {n: "Player XP", v: "+15", nd: "45"}, {n: "Rune Bulk", v: "×1.5", nd: "5"}] },
+        { r: "Legendary", c: "60.11K", t: "legendary", s: [{n: "Power", v: "+1.25K", nd: "83"}, {n: "Player XP", v: "+15", nd: "45"}, {n: "Rune Bulk", v: "×1.5", nd: "5"}] },
         { r: "Mythical", c: "606.1K", t: "mythical", s: [{n: "Power", v: "+100K", nd: "10K"}, {n: "Golden Points", v: "×4", nd: "60"}, {n: "Rune Luck", v: "×2.25", nd: "9"}] },
         { r: "Secret", c: "2.594M", t: "secret", s: [{n: "Power", v: "×10", nd: "34"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
         { r: "Unknown", c: "10.01B", t: "unknown", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
@@ -343,7 +343,7 @@ const DATA = {
         { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
     ],
     Plasma: [
-        { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "291B"}] },
+        { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "576B"}] },
         { r: "Arclight", c: "999.9Qa", t: "rare", s: [{n: "Plasma Points", v: "+25", nd: "32.2K"}, {n: "Player XP", v: "×4", nd: "300"}, {n: "Rune Bulk", v: "×4", nd: "1M"}] },
         { r: "Voltaris", c: "12.49Qi", t: "epic", s: [{n: "Lava", v: "×3", nd: "62.5K"}, {n: "Magma", v: "×25", nd: "2.4K"}, {n: "Rune Luck", v: "×5", nd: "1K"}] },
         { r: "Aetherion", c: "4.599Sx", t: "legendary", s: [{n: "Power", v: "×12", nd: "2.49K"}, {n: "Plasma Points", v: "×5", nd: "20K"}, {n: "Rune Luck", v: "×7", nd: "60"}] },
@@ -356,7 +356,7 @@ const DATA = {
         { r: "Icebound", c: "1.999Dd", t: "epic", s: [{n: "Player XP", v: "×2", nd: "2"}, {n: "Snowflakes", v: "×5", nd: "1.6K"}, {n: "Plasma Points", v: "×9", nd: "1.68M"}] },
         { r: "Glacial", c: "49.99Td", t: "legendary", s: [{n: "Power", v: "×50", nd: "3.91M"}, {n: "Magma", v: "×45", nd: "169B"}, {n: "Rune Luck", v: "×3", nd: "34"}] },
         { r: "Winters Wrath", c: "999.9Qui", t: "mythical", s: [{n: "Power", v: "×25", nd: "16.8M"}, {n: "Snowflakes", v: "×5", nd: "800"}, {n: "Rune Bulk", v: "×5", nd: "10K"}] },
-        { r: "Absolute Zero", c: "12.49Spd", t: "secret", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83M"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
+        { r: "Absolute Zero", c: "12.49Spd", t: "secret", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83K"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
         { r: "Eternal Whiteout", c: "29.99Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] }
     ],
     Icey: [
@@ -364,16 +364,10 @@ const DATA = {
         { r: "Glacier", c: "3.99Qua", t: "rare", s: [{n: "Golden Points", v: "×100", nd: "1.485M"}, {n: "Icey", v: "×5", nd: "50.625K"}, {n: "Player Xp", v: "×10", nd: "9"}] },
         { r: "Cryo", c: "84.99Ocd", t: "epic", s: [{n: "Power", v: "×35", nd: "24.6M"}, {n: "Icey", v: "×5", nd: "4.096K"}, {n: "Aura Luck", v: "×2", nd: "50K"}] },
         { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{ n: "Player XP", v: "×10", nd: "262K" }, { n: "Ice", v: "×6", nd: "1K" }, { n: "Rune Luck", v: "×7", nd: "40" }] },
-        { r: "Blizzard", c: "2.249Qavg", t: "mythic", s: [{ n: "Power", v: "×25", nd: "3.55M" }, { n: "Ice", v: "×5", nd: "625" }, { n: "Snowflakes", v: "×5", nd: "8K" }] },
+        { r: "Blizzard", c: "2.249Qavg", t: "mythic", s: [{ n: "Power", v: "×25", nd: "3.55B" }, { n: "Ice", v: "×5", nd: "625" }, { n: "Snowflakes", v: "×5", nd: "8K" }] },
         { r: "Hurricane", c: "1.599SpVg", t: "Secret", s: [{ n: "Ice", v: "×4", nd: "3" }, { n: "Ore Damage", v: "×15", nd: "100" }, { n: "Cash", v: "×5", nd: "10k" }] }
-    ],
-    "Cave Rune": [
-        { r: "Cave", c: "1.00", t: "uncommon", s: [{n: "Cave", v: "+10", nd: "500"}] },
-        { r: "Cave", c: "500.00", t: "rare", s: [{n: "Cave", v: "×2", nd: "5K"}] },
-        { r: "Cave", c: "10.00K", t: "epic", s: [{n: "Cave", v: "+5%", nd: "25K"}] }
     ]
 };
-
 let currentTab = "Starter";
 // Speichert den Sichtbarkeitsstatus pro Tab und Rune: { TabName: { RuneName: true/false } }
 let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || {};
