@@ -132,11 +132,37 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
+        position: relative;
     }
 
-    .card-header { text-align: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .card-header { text-align: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); padding-right: 30px; }
     .card-title { font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
     .card-chance { font-size: 12px; color: var(--text-muted); }
+
+    .visibility-toggle {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 18px;
+        user-select: none;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    .visibility-toggle:hover { opacity: 1; }
+
+    .card.hidden-rune {
+        gap: 0;
+        padding-bottom: 10px;
+    }
+    .card.hidden-rune .card-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .card.hidden-rune .card-chance,
+    .card.hidden-rune .stat-box {
+        display: none !important;
+    }
 
     .stat-box {
         background: var(--bg-box);
@@ -173,35 +199,33 @@
 
 <div class="container">
     <div class="panel">
-        <h1>Slayer Inc Rune Calculator</h1>
+        <h1 id="main-title">Slayer Inc Rune Calculator</h1>
         
-        <!-- RUNE CALCULATOR CONTROLS -->
         <div class="input-grid" id="rune-controls">
             <div class="input-group">
-                <label>Rune Speed (sec)</label>
+                <label id="lbl-speed">Rune Speed (sec)</label>
                 <input type="number" id="speed" value="0.1" step="0.01">
             </div>
             <div class="input-group">
-                <label>Rune Bulk</label>
+                <label id="lbl-bulk">Rune Bulk</label>
                 <div class="input-row">
                     <input type="number" id="bulk-num" value="100">
                     <select id="bulk-suf"></select>
                 </div>
             </div>
             <div class="input-group">
-                <label>Rune Luck</label>
+                <label id="lbl-luck">Rune Luck</label>
                 <div class="input-row">
                     <input type="number" id="luck-num" value="2.5" step="0.1">
                     <select id="luck-suf"></select>
                 </div>
             </div>
             <div class="input-group">
-                <label>Rune Clone</label>
+                <label id="lbl-clone">Rune Clone</label>
                 <input type="number" id="clone" value="3">
             </div>
         </div>
 
-        <!-- XP CALCULATOR CONTROLS (Hidden by default) -->
         <div class="input-grid" id="xp-controls" style="display: none;">
             <div class="input-group">
                 <label>Current Level (S)</label>
@@ -221,7 +245,7 @@
 
         <div class="global-stats" id="global-stats-bar">
             <div>Rolls/sec: <span id="out-rolls">0</span></div>
-            <div>Runes/sec: <span id="out-runs">0</span></div>
+            <div id="lbl-out-runs-container">Runes/sec: <span id="out-runs">0</span></div>
         </div>
     </div>
 
@@ -342,15 +366,25 @@ const DATA = {
         { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{ n: "Player XP", v: "×10", nd: "262K" }, { n: "Ice", v: "×6", nd: "1K" }, { n: "Rune Luck", v: "×7", nd: "40" }] },
         { r: "Blizzard", c: "2.249Qavg", t: "mythic", s: [{ n: "Power", v: "×25", nd: "3.55M" }, { n: "Ice", v: "×5", nd: "625" }, { n: "Snowflakes", v: "×5", nd: "8K" }] },
         { r: "Hurricane", c: "1.599SpVg", t: "Secret", s: [{ n: "Ice", v: "×4", nd: "3" }, { n: "Ore Damage", v: "×15", nd: "100" }, { n: "Cash", v: "×5", nd: "10k" }] }
-  ]
+    ],
+    "Cave Rune": [
+        { r: "Cave Luck", c: "1.00", t: "uncommon", s: [{n: "Cave Power", v: "+10", nd: "500"}] },
+        { r: "Cave Bulk", c: "500.00", t: "rare", s: [{n: "Cave Yield", v: "×2", nd: "5K"}] },
+        { r: "Cave Clone", c: "10.00K", t: "epic", s: [{n: "Cave Double Drop", v: "+5%", nd: "25K"}] }
+    ]
 };
-const hiddenRunes = JSON.parse(localStorage.getItem("hiddenRunes") || "{}");
+
 let currentTab = "Starter";
+// Speichert den Sichtbarkeitsstatus pro Tab und Rune: { TabName: { RuneName: true/false } }
+let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || {};
 
 function initDropdowns() {
     const bSuf = document.getElementById("bulk-suf");
     const lSuf = document.getElementById("luck-suf");
     const reversedSuffixes = [...SUFFIXES].reverse();
+    
+    bSuf.innerHTML = "";
+    lSuf.innerHTML = "";
     
     reversedSuffixes.forEach(x => {
         const op1 = document.createElement("option");
@@ -367,7 +401,6 @@ function initDropdowns() {
 }
 
 function renderTabs() {
-    // XP Calculator is now the first tab, followed by all Rune Tabs
     const tabs = ["XP Calculator"].concat(Object.keys(DATA));
     const cont = document.getElementById("tabs-container");
     cont.innerHTML = tabs.map(tab => 
@@ -375,31 +408,42 @@ function renderTabs() {
     ).join("");
 }
 
+function updateLabels() {
+    const prefix = currentTab === "Cave Rune" ? "Cave" : "Rune";
+    document.getElementById("lbl-speed").innerText = `${prefix} Speed (sec)`;
+    document.getElementById("lbl-bulk").innerText = `${prefix} Bulk`;
+    document.getElementById("lbl-luck").innerText = `${prefix} Luck`;
+    document.getElementById("lbl-clone").innerText = `${prefix} Clone`;
+    document.getElementById("lbl-out-runs-container").innerHTML = `${prefix}s/sec: <span id="out-runs">0</span>`;
+}
+
 function setTab(tab) {
     currentTab = tab;
     renderTabs();
     
-    // Toggle logic between Rune Settings and XP Settings
     if (tab === "XP Calculator") {
         document.getElementById("rune-controls").style.display = "none";
         document.getElementById("xp-controls").style.display = "grid";
-        
         document.getElementById("error-box").style.display = "none";
         document.getElementById("global-stats-bar").style.display = "none";
-        
         document.getElementById("cards-container").style.display = "none";
         document.getElementById("xp-message").style.display = "block";
-        
         calculateXP();
     } else {
         document.getElementById("rune-controls").style.display = "grid";
         document.getElementById("xp-controls").style.display = "none";
-        
         document.getElementById("cards-container").style.display = "grid";
         document.getElementById("xp-message").style.display = "none";
-        
+        updateLabels();
         calculate();
     }
+}
+
+function toggleRuneVisibility(tab, runeName) {
+    if (!hiddenRunes[tab]) hiddenRunes[tab] = {};
+    hiddenRunes[tab][runeName] = !hiddenRunes[tab][runeName];
+    localStorage.setItem('slayer_v3_hidden_runes', JSON.stringify(hiddenRunes));
+    calculate();
 }
 
 function getMultiplier(suffixStr) {
@@ -416,7 +460,6 @@ function calculateXP() {
         return;
     }
     
-    // Formula for XP
     const xp = 500 * (Math.pow(1.2, E) - Math.pow(1.2, S));
     document.getElementById("xp-result").value = formatNum(xp);
 }
@@ -453,74 +496,58 @@ function calculate() {
     document.getElementById("out-rolls").innerText = formatNum(rollsPerSec);
     document.getElementById("out-runs").innerText = formatNum(runsPerSec);
 
-    let html = "";
-
-    // Safety check in case the current tab isn't in DATA (e.g. for the XP Calc)
     if (!DATA[currentTab]) return;
 
-    const sortedRunes = [...DATA[currentTab]].sort((a,b)=>{
-    return (hiddenRunes[a.r] ? 1 : 0) - (hiddenRunes[b.r] ? 1 : 0);
-});
-
-sortedRunes.forEach(rune => {
- parseStringValue(rune.c);
+    // Erstelle Kopien der Runen-Objekte inklusive berechneter Werte für die Sortierung
+    let runeList = DATA[currentTab].map((rune, index) => {
+        const isHidden = !!(hiddenRunes[currentTab] && hiddenRunes[currentTab][rune.r]);
+        const baseDenom = parseStringValue(rune.c);
         const currentDenom = baseDenom / luck;
-
-        const currentIndex = DATA[currentTab].indexOf(rune);
-        const nextRune = DATA[currentTab][currentIndex + 1];
-
+        
+        const nextRune = DATA[currentTab][index + 1];
         let isNA = (runsPerSec <= 0);
-
         if (nextRune) {
             const nextDenom = parseStringValue(nextRune.c) / luck;
-
-            if (nextDenom <= 1) {
-                isNA = true;
-            }
+            if (nextDenom <= 1) isNA = true;
         }
 
         const displayDenom = Math.max(currentDenom, 1);
-
         const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
         const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
         const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
-        
-        const hidden = hiddenRunes[rune.r];
 
-html += `
-<div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center;">
-            <div style="cursor:pointer;font-size:22px;"
-onclick="
-hiddenRunes['${rune.r}']=!hiddenRunes['${rune.r}'];
-localStorage.setItem('hiddenRunes',JSON.stringify(hiddenRunes));
-calculate();
-">
-${hidden ? "🙈" : "👁️"}
-</div>
+        return {
+            originalData: rune,
+            isHidden: isHidden,
+            baseDenom: baseDenom,
+            chanceStr: chanceStr,
+            expStr: expStr,
+            expectedDropsPerSec: expectedDropsPerSec,
+            isNA: isNA
+        };
+    });
 
-</div>
+    // Sortierung: Nicht-versteckte oben (false), versteckte unten (true)
+    runeList.sort((a, b) => a.isHidden - b.isHidden);
 
-<div class="card-header">
+    let html = "";
+    runeList.forEach(item => {
+        const rune = item.originalData;
+        const eyeIcon = item.isHidden ? "🙈" : "👁️";
+        const hiddenClass = item.isHidden ? "hidden-rune" : "";
+
+        html += `
+        <div class="card ${hiddenClass}">
+            <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
+            <div class="card-header">
                 <div class="card-title ${rune.t}">${rune.r}</div>
-                <div class="card-chance">Base: 1 in ${formatNum(baseDenom)} | Current: ${chanceStr}</div>
+                <div class="card-chance">Base: 1 in ${formatNum(item.baseDenom)} | Current: ${item.chanceStr}</div>
             </div>`;
-if(hidden){
-    html += `
-    <div style="
-        text-align:center;
-        color:#888;
-        padding:25px;
-    ">
-        Rune Hidden
-    </div>
-    </div>`;
-    return;
-}
+
         rune.s.forEach(stat => {
             const needVal = parseStringValue(stat.nd);
-            const timeSec = (!isNA && expectedDropsPerSec > 0) ? (needVal / expectedDropsPerSec) : Infinity;
-            const timeStr = (isNA || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0) ? (needVal / item.expectedDropsPerSec) : Infinity;
+            const timeStr = (item.isNA || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
             
             html += `
             <div class="stat-box ${rune.t}">
@@ -529,7 +556,7 @@ if(hidden){
                 </div>
                 <div class="stat-details">
                     <div>Need: <span>${formatNum(needVal)}</span></div>
-                    <div>Exp/sec: <span>${expStr}</span></div>
+                    <div>Exp/sec: <span>${item.expStr}</span></div>
                     <div style="grid-column: span 2; margin-top:5px;">
                         Time to Max: <span class="time-highlight">${timeStr}</span>
                     </div>
@@ -545,7 +572,6 @@ if(hidden){
 
 initDropdowns();
 
-// Event listeners for storing values in Local Storage
 const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
 inputIds.forEach(id => {
     const el = document.getElementById(id);
