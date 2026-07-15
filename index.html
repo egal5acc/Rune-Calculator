@@ -183,6 +183,7 @@
     .stat-details span { color: #fff; font-weight: bold; }
     .time-highlight { color: var(--c-rare) !important; }
 
+    .normal { color: var(--c-common); border-left-color: var(--c-common); }
     .common { color: var(--c-common); border-left-color: var(--c-common); }
     .uncommon { color: var(--c-uncommon); border-left-color: var(--c-uncommon); }
     .rare { color: var(--c-rare); border-left-color: var(--c-rare); }
@@ -201,7 +202,6 @@
     <div class="panel">
         <h1 id="main-title">Slayer Inc Rune Calculator</h1>
         
-        <!-- RUNE CALCULATOR CONTROLS -->
         <div class="input-grid" id="rune-controls">
             <div class="input-group">
                 <label id="lbl-speed">Rune Speed (sec)</label>
@@ -227,7 +227,6 @@
             </div>
         </div>
 
-        <!-- XP CALCULATOR CONTROLS (Hidden by default) -->
         <div class="input-grid" id="xp-controls" style="display: none;">
             <div class="input-group">
                 <label>Current Level (S)</label>
@@ -243,7 +242,7 @@
             </div>
         </div>
         
-        <div id="error-box" class="error-box">⚠️ SYSTEM ERROR: Speed must be between 0.08s and 1.00s!</div>
+        <div id="error-box" class="error-box">⚠️ SYSTEM ERROR: Rune Speed must be between 0.08s and 1.00s!</div>
 
         <div class="global-stats" id="global-stats-bar">
             <div>Rolls/sec: <span id="out-rolls">0</span></div>
@@ -313,11 +312,11 @@ function formatTime(sec) {
 
 const DATA = {
     Starter: [
-        { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "100"}] },
+        { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
         { r: "Uncommon", c: "6.06", t: "uncommon", s: [{n: "Power", v: "+25", nd: "313"}, {n: "Player XP", v: "+5", nd: "143"}] },
         { r: "Rare", c: "100.20", t: "rare", s: [{n: "Essence", v: "+125", nd: "625"}] },
         { r: "Epic", c: "1.252K", t: "epic", s: [{n: "Power", v: "+300", nd: "250"}, {n: "Golden Points", v: "+1.25", nd: "25"}] },
-        { r: "Legendary", c: "60.11K", t: "legendary", s: [{n: "Power", v: "+1.25K", nd: "78"}, {n: "Player XP", v: "+15", nd: "45"}, {n: "Rune Bulk", v: "×1.5", nd: "5"}] },
+        { r: "Legendary", c: "60.11K", t: "legendary", s: [{n: "Power", v: "+1.25K", nd: "83"}, {n: "Player XP", v: "+15", nd: "45"}, {n: "Rune Bulk", v: "×1.5", nd: "5"}] },
         { r: "Mythical", c: "606.1K", t: "mythical", s: [{n: "Power", v: "+100K", nd: "10K"}, {n: "Golden Points", v: "×4", nd: "60"}, {n: "Rune Luck", v: "×2.25", nd: "9"}] },
         { r: "Secret", c: "2.594M", t: "secret", s: [{n: "Power", v: "×10", nd: "34"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
         { r: "Unknown", c: "10.01B", t: "unknown", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
@@ -331,7 +330,7 @@ const DATA = {
         { r: "Imperial", c: "25M", t: "legendary", s: [{n: "Golden Points", v: "+125", nd: "125"}, {n: "Player XP", v: "×2", nd: "20"}, {n: "Essence", v: "×25", nd: "800"}] },
         { r: "Treasury", c: "125M", t: "mythical", s: [{n: "Power", v: "×8", nd: "39"}, {n: "Rune Luck", v: "×4", nd: "29"}, {n: "Gold Chance", v: "+5", nd: "5"}] },
         { r: "Gilded", c: "2.75Qa", t: "secret", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
-        { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "57"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
+        { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
         { r: "Sol Sovereign", c: "200Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] }
     ],
     Magma: [
@@ -345,7 +344,7 @@ const DATA = {
         { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
     ],
     Plasma: [
-        { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "291B"}] },
+        { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "576B"}] },
         { r: "Arclight", c: "999.9Qa", t: "rare", s: [{n: "Plasma Points", v: "+25", nd: "32.2K"}, {n: "Player XP", v: "×4", nd: "300"}, {n: "Rune Bulk", v: "×4", nd: "1M"}] },
         { r: "Voltaris", c: "12.49Qi", t: "epic", s: [{n: "Lava", v: "×3", nd: "62.5K"}, {n: "Magma", v: "×25", nd: "2.4K"}, {n: "Rune Luck", v: "×5", nd: "1K"}] },
         { r: "Aetherion", c: "4.599Sx", t: "legendary", s: [{n: "Power", v: "×12", nd: "2.49K"}, {n: "Plasma Points", v: "×5", nd: "20K"}, {n: "Rune Luck", v: "×7", nd: "60"}] },
@@ -358,21 +357,26 @@ const DATA = {
         { r: "Icebound", c: "1.999Dd", t: "epic", s: [{n: "Player XP", v: "×2", nd: "2"}, {n: "Snowflakes", v: "×5", nd: "1.6K"}, {n: "Plasma Points", v: "×9", nd: "1.68M"}] },
         { r: "Glacial", c: "49.99Td", t: "legendary", s: [{n: "Power", v: "×50", nd: "3.91M"}, {n: "Magma", v: "×45", nd: "169B"}, {n: "Rune Luck", v: "×3", nd: "34"}] },
         { r: "Winters Wrath", c: "999.9Qui", t: "mythical", s: [{n: "Power", v: "×25", nd: "16.8M"}, {n: "Snowflakes", v: "×5", nd: "800"}, {n: "Rune Bulk", v: "×5", nd: "10K"}] },
-        { r: "Absolute Zero", c: "12.49Spd", t: "secret", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83M"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
+        { r: "Absolute Zero", c: "12.49Spd", t: "secret", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83K"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
         { r: "Eternal Whiteout", c: "29.99Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] }
     ],
     Icey: [
         { r: "Frost", c: "1.00", t: "uncommon", s: [{n: "Power", v: "×10", nd: "1.953Dc"}, {n: "Ice", v: "×4", nd: "3Qa"}, {n: "Player XP", v: "×10", nd: "12.16Qi"}] },
-        { r: "Glacier", c: "3.99Qua", t: "rare", s: [{n: "Golden Points", v: "×100", nd: "1.485M"}, {n: "Icey", v: "×5", nd: "50.625K"}, {n: "Player Xp", v: "×10", nd: "9"}] },
+        { r: "Glacier", c: "3.99Qua", t: "rare", s: [{n: "Golden Points", v: "×100", nd: "1.485M"}, {n: "Icey", v: "×5", nd: "50.625K"}, {n: "Player XP", v: "×10", nd: "9"}] },
         { r: "Cryo", c: "84.99Ocd", t: "epic", s: [{n: "Power", v: "×35", nd: "24.6M"}, {n: "Icey", v: "×5", nd: "4.096K"}, {n: "Aura Luck", v: "×2", nd: "50K"}] },
-        { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{ n: "Player XP", v: "×10", nd: "262K" }, { n: "Ice", v: "×6", nd: "1K" }, { n: "Rune Luck", v: "×7", nd: "40" }] },
-        { r: "Blizzard", c: "2.249Qavg", t: "mythic", s: [{ n: "Power", v: "×25", nd: "3.55M" }, { n: "Ice", v: "×5", nd: "625" }, { n: "Snowflakes", v: "×5", nd: "8K" }] },
-        { r: "Hurricane", c: "1.599SpVg", t: "Secret", s: [{ n: "Ice", v: "×4", nd: "3" }, { n: "Ore Damage", v: "×15", nd: "100" }, { n: "Cash", v: "×5", nd: "10k" }] }
+        { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{n: "Player XP", v: "×10", nd: "262K"}, {n: "Ice", v: "×6", nd: "1K"}, {n: "Rune Luck", v: "×7", nd: "40"}] },
+        { r: "Blizzard", c: "2.249Qavg", t: "mythical", s: [{n: "Power", v: "×25", nd: "3.55B"}, {n: "Ice", v: "×5", nd: "625"}, {n: "Snowflakes", v: "×5", nd: "8K"}] },
+        { r: "Hurricane", c: "1.599SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
     ],
     "Cave Rune": [
-        { r: "Cave Luck", c: "1.00", t: "uncommon", s: [{n: "Cave Power", v: "+10", nd: "500"}] },
-        { r: "Cave Bulk", c: "500.00", t: "rare", s: [{n: "Cave Yield", v: "×2", nd: "5K"}] },
-        { r: "Cave Clone", c: "10.00K", t: "epic", s: [{n: "Cave Double Drop", v: "+5%", nd: "25K"}] }
+        { r: "Dirt", c: "1.01", t: "normal", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
+        { r: "Shallow", c: "100", t: "normal", s: [{n: "Cash", v: "×7", nd: "46.66K"}, {n: "Player XP", v: "×12", nd: "207"}, {n: "Rune Bulk", v: "×5", nd: "400"}] },
+        { r: "Cavern", c: "750", t: "normal", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
+        { r: "Grotto", c: "15K", t: "normal", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
+        { r: "Crystal Cave", c: "1M", t: "normal", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
+        { r: "Deep Hollow", c: "17.5M", t: "normal", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
+        { r: "Dripstone", c: "200M", t: "normal", s: [{n: "Cash", v: "×25", nd: "120"}, {n: "Shards", v: "×15", nd: "16.38K"}, {n: "Rune Luck", v: "×4", nd: "6"}] },
+        { r: "Bedrock", c: "30B", t: "secret", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
     ]
 };
 
@@ -418,15 +422,16 @@ function updateLabels() {
     document.getElementById("lbl-out-runs-container").innerHTML = `${prefix}s/sec: <span id="out-runs">0</span>`;
 }
 
-// Lädt die Werte für das jeweilige System (Normal oder Cave)
+// Holt und lädt getrennte Input-Werte je nachdem, ob man auf Cave-Rune oder Normal ist
 function loadTabInputs() {
     const systemKey = currentTab === "Cave Rune" ? "cave" : "normal";
     
+    // Standard-Fallback-Werte für beide Systeme
     const defaults = {
-        speed: currentTab === "Cave Rune" ? "0.1" : "0.1",
+        speed: "0.1",
         "bulk-num": currentTab === "Cave Rune" ? "1" : "100",
         "bulk-suf": "None",
-        "luck-num": currentTab === "Cave Rune" ? "1.0" : "2.5",
+        "luck-num": currentTab === "Cave Rune" ? "1" : "2.5",
         "luck-suf": "None",
         clone: currentTab === "Cave Rune" ? "1" : "3"
     };
@@ -438,7 +443,7 @@ function loadTabInputs() {
     });
 }
 
-// Speichert die Werte getrennt für das jeweilige System (Normal oder Cave)
+// Speichert den aktuellen Stand getrennt ab
 function saveTabInputs() {
     if (currentTab === "XP Calculator") return;
     const systemKey = currentTab === "Cave Rune" ? "cave" : "normal";
@@ -466,7 +471,7 @@ function setTab(tab) {
         document.getElementById("cards-container").style.display = "grid";
         document.getElementById("xp-message").style.display = "none";
         updateLabels();
-        loadTabInputs(); // Holt die passenden Werte für das aktuelle System
+        loadTabInputs(); // Holt die Daten passend für das gewählte System
         calculate();
     }
 }
@@ -602,33 +607,32 @@ function calculate() {
 
 initDropdowns();
 
-// Event Listener für XP Inputs
-['xp-start', 'xp-end'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if(localStorage.getItem('slayer_v3_'+id)) el.value = localStorage.getItem('slayer_v3_'+id);
-    el.addEventListener('input', () => {
-        localStorage.setItem('slayer_v3_'+id, el.value);
-        calculateXP();
-    });
-});
-
-// Event Listener für die Input-Felder des Rechners
-const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'];
+// Event Listener für alle Input Felder inkl. XP Calculator
+const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
 inputIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
 
+    // Nur falls vorhanden, lade den Standardwert für die XP-Felder normal
+    if (id === 'xp-start' || id === 'xp-end') {
+        if(localStorage.getItem('slayer_v3_'+id)) el.value = localStorage.getItem('slayer_v3_'+id);
+    }
+    
     const handler = () => {
-        saveTabInputs(); // Speichert direkt passend zur aktuellen Kategorie ab
-        calculate();
+        if (id === 'xp-start' || id === 'xp-end') {
+            localStorage.setItem('slayer_v3_'+id, el.value);
+            calculateXP();
+        } else {
+            saveTabInputs(); // Speichert getrennt nach Normal / Cave
+            calculate();
+        }
     };
     
     el.addEventListener('input', handler);
     el.addEventListener('change', handler);
 });
 
-// Initiiere beim ersten Start mit dem richtigen System
+// Initiiere das erste System korrekt
 loadTabInputs();
 renderTabs();
 calculate();
