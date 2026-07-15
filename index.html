@@ -183,7 +183,7 @@
     .stat-details span { color: #fff; font-weight: bold; }
     .time-highlight { color: var(--c-rare) !important; }
 
-    .normal { color: var(--c-common); border-left-color: var(--c-common); }
+    /* Rarity Classes & Left Border Colors */
     .common { color: var(--c-common); border-left-color: var(--c-common); }
     .uncommon { color: var(--c-uncommon); border-left-color: var(--c-uncommon); }
     .rare { color: var(--c-rare); border-left-color: var(--c-rare); }
@@ -383,15 +383,16 @@ const DATA = {
         { r: "Hurricane", c: "1.599SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
     ],
     "Cave Hidden": [
-        { r: "Bedrock", c: "30B", t: "normal", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
+        { r: "Dripstone", c: "200M", t: "legendary", s: [{n: "Cash", v: "×25", nd: "120"}, {n: "Shards", v: "×15", nd: "16.38K"}, {n: "Rune Luck", v: "×4", nd: "6"}] },
+        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
     ],
     "Cave Rune": [
-        { r: "Dirt", c: "1.01", t: "normal", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
-        { r: "Shallow", c: "100", t: "normal", s: [{n: "Cash", v: "×7", nd: "46.66K"}, {n: "Player XP", v: "×12", nd: "207"}, {n: "Rune Bulk", v: "×5", nd: "400"}] },
-        { r: "Cavern", c: "750", t: "normal", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
-        { r: "Grotto", c: "15K", t: "normal", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
-        { r: "Crystal Cave", c: "1M", t: "normal", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
-        { r: "Deep Hollow", c: "17.5M", t: "normal", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] }
+        { r: "Dirt", c: "1.01", t: "common", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
+        { r: "Shallow", c: "100", t: "uncommon", s: [{n: "Cash", v: "×7", nd: "46.66K"}, {n: "Player XP", v: "×12", nd: "207"}, {n: "Rune Bulk", v: "×5", nd: "400"}] },
+        { r: "Cavern", c: "750", t: "rare", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
+        { r: "Grotto", c: "15K", t: "epic", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
+        { r: "Crystal Cave", c: "1M", t: "legendary", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
+        { r: "Deep Hollow", c: "17.5M", t: "mythical", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] }
     ]
 };
 
