@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Tab Rechner</title>
+    <style>
+        /* Modernes, dunkles Design passend zu deinem Screenshot */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0b0e14;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        /* Inputs & Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #151a22;
+            padding: 15px;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .input-group label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+        .input-group input {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            width: 120px;
+        }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .tab-btn {
+            background: #151a22;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+        /* Liste & Items */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .item-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .item-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        .item-chance {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .stat-line {
+            font-size: 14px;
+            margin: 4px 0;
+            color: #cbd5e1;
+        }
+        .stat-name {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        /* Hilfsklasse zum Ausblenden */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="controls">
+        <div class="input-group">
+            <label for="rollSpeed">Roll Speed (Rolls/s):</label>
+            <input type="number" id="rollSpeed" value="1" min="0.1" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="normalLuck">Normal Luck:</label>
+            <input type="number" id="normalLuck" value="1" min="1">
+        </div>
+        <div class="input-group hidden" id="caveLuckGroup">
+            <label for="caveLuck">Cave Luck (C.Luck):</label>
+            <input type="number" id="caveLuck" value="1" min="1">
+        </div>
+    </div>
+
+    <div class="tabs" id="tabContainer">
+        </div>
+
+    <div class="item-list" id="itemList">
+        </div>
+
+</div>
+
+<script>
+// Das komplette gameData-Objekt mit all deinen Kategorien
+const gameData = {
+    Normal: [
+        { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
+        { r: "Uncommon", c: "6.06", t: "uncommon", s: [{n: "Power", v: "+25", nd: "313"}, {n: "Player XP", v: "+5", nd: "143"}] },
+        { r: "Rare", c: "100.20", t: "rare", s: [{n: "Essence", v: "+125", nd: "625"}] },
+        { r: "Epic", c: "1.252K", t: "epic", s: [{n: "Power", v: "+300", nd: "250"}, {n: "Golden Points", v: "+1.25", nd: "25"}] },
+        { r: "Legendary", c: "60.11K", t: "legendary", s: [{n: "Power", v: "+1.25K", nd: "83"}, {n: "Player XP", v: "+15", nd: "45"}, {n: "Rune Bulk", v: "×1.5", nd: "5"}] },
+        { r: "Mythical", c: "606.1K", t: "mythical", s: [{n: "Power", v: "+100K", nd: "10K"}, {n: "Golden Points", v: "×4", nd: "60"}, {n: "Rune Luck", v: "×2.25", nd: "9"}] },
+        { r: "Secret", c: "2.594M", t: "secret", s: [{n: "Power", v: "×10", nd: "34"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
+        { r: "Unknown", c: "10.01B", t: "unknown", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
+        { r: "Celestial", c: "400.7Oc", t: "celestial", s: [{n: "Player XP", v: "×10", nd: "1.5K"}, {n: "Golden Points", v: "×12", nd: "22K"}, {n: "Rune Bulk", v: "×5", nd: "8K"}] },
+        { r: "Ancient", c: "40.07Ud", t: "ancient", s: [{n: "Plasma Points", v: "×10", nd: "6.56K"}, {n: "Spirit Orbs", v: "×75", nd: "1.08M"}, {n: "Rune Luck", v: "×3", nd: "59"}] }
+    ],
+    Golden: [
+        { r: "Shiny", c: "1.00", t: "uncommon", s: [{n: "Golden Points", v: "+8", nd: "5.72K"}, {n: "Player XP", v: "+10", nd: "57.7K"}] },
+        { r: "Regal", c: "100K", t: "rare", s: [{n: "Golden Points", v: "+25", nd: "186"}] },
+        { r: "Auric", c: "2M", t: "epic", s: [{n: "Damage", v: "+25", nd: "12.9K"}, {n: "Essence", v: "+20", nd: "46.5"}, {n: "Rune Luck", v: "×2.5", nd: "15"}] },
+        { r: "Imperial", c: "25M", t: "legendary", s: [{n: "Golden Points", v: "+125", nd: "125"}, {n: "Player XP", v: "×2", nd: "20"}, {n: "Essence", v: "×25", nd: "800"}] },
+        { r: "Treasury", c: "125M", t: "mythical", s: [{n: "Power", v: "×8", nd: "39"}, {n: "Rune Luck", v: "×4", nd: "29"}, {n: "Gold Chance", v: "+5", nd: "5"}] },
+        { r: "Gilded", c: "2.75Qa", t: "secret", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
+        { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
+        { r: "Sol Sovereign", c: "200Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] }
+    ],
+    Magma: [
+        { r: "Charred", c: "1.00", t: "uncommon", s: [{n: "Magma", v: "+5", nd: "250K"}] },
+        { r: "Ignis", c: "499.9M", t: "rare", s: [{n: "Magma", v: "×15", nd: "5.4M"}, {n: "Damage", v: "+10", nd: "10K"}] },
+        { r: "Cinder", c: "24.49B", t: "epic", s: [{n: "Power", v: "+3", nd: "240"}, {n: "Golden Points", v: "+3", nd: "45"}, {n: "Rune Luck", v: "×1.5", nd: "17"}] },
+        { r: "Pyric", c: "2.749T", t: "legendary", s: [{n: "Essence", v: "+45", nd: "563"}, {n: "Magma", v: "+25", nd: "100K"}, {n: "Rune Bulk", v: "×8", nd: "175"}] },
+        { r: "Searing", c: "97.49T", t: "mythical", s: [{n: "Magma", v: "×25", nd: "448B"}, {n: "Golden Points", v: "+12", nd: "60"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
+        { r: "Volcanic", c: "49.9Qa", t: "secret", s: [{n: "Power", v: "×15", nd: "16.4K"}, {n: "Lava", v: "×5", nd: "537"}, {n: "Magma", v: "×25", nd: "322"}] },
+        { r: "Worldflare", c: "9.999Sp", t: "unknown", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
+        { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
+    ],
+    Plasma: [
+        { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "576B"}] },
+        { r: "Arclight", c: "999.9Qa", t: "rare", s: [{n: "Plasma Points", v: "+25", nd: "32.2K"}, {n: "Player XP", v: "×4", nd: "300"}, {n: "Rune Bulk", v: "×4", nd: "1M"}] },
+        { r: "Voltaris", c: "12.49Qi", t: "epic", s: [{n: "Lava", v: "×3", nd: "62.5K"}, {n: "Magma", v: "×25", nd: "2.4K"}, {n: "Rune Luck", v: "×5", nd: "1K"}] },
+        { r: "Aetherion", c: "4.599Sx", t: "legendary", s: [{n: "Power", v: "×12", nd: "2.49K"}, {n: "Plasma Points", v: "×5", nd: "20K"}, {n: "Rune Luck", v: "×7", nd: "60"}] },
+        { r: "Astralis", c: "2.499Oc", t: "mythical", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
+        { r: "Ecliptor", c: "499.9Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] }
+    ],
+    Snow: [
+        { r: "Snowfall", c: "1.00", t: "uncommon", s: [{n: "Snowflakes", v: "×10", nd: "4.5K"}, {n: "Snowflakes", v: "×15", nd: "233M"}, {n: "Player XP", v: "×10", nd: "3.8T"}] },
+        { r: "Frostbite", c: "99.99N", t: "rare", s: [{n: "Power", v: "×40", nd: "36.9K"}, {n: "Player XP", v: "×10", nd: "430M"}, {n: "Snowflakes", v: "×7", nd: "800"}] },
+        { r: "Icebound", c: "1.999Dd", t: "epic", s: [{n: "Player XP", v: "×2", nd: "2"}, {n: "Snowflakes", v: "×5", nd: "1.6K"}, {n: "Plasma Points", v: "×9", nd: "1.68M"}] },
+        { r: "Glacial", c: "49.99Td", t: "legendary", s: [{n: "Power", v: "×50", nd: "3.91M"}, {n: "Magma", v: "×45", nd: "169B"}, {n: "Rune Luck", v: "×3", nd: "34"}] },
+        { r: "Winters Wrath", c: "999.9Qui", t: "mythical", s: [{n: "Power", v: "×25", nd: "16.8M"}, {n: "Snowflakes", v: "×5", nd: "800"}, {n: "Rune Bulk", v: "×5", nd: "10K"}] },
+        { r: "Absolute Zero", c: "12.49Spd", t: "secret", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83K"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
+        { r: "Eternal Whiteout", c: "29.99Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] }
+    ],
+    Icey: [
+        { r: "Frost", c: "1.00", t: "uncommon", s: [{n: "Power", v: "×10", nd: "1.953Dc"}, {n: "Ice", v: "×4", nd: "3Qa"}, {n: "Player XP", v: "×10", nd: "12.16Qi"}] },
+        { r: "Glacier", c: "3.99Qua", t: "rare", s: [{n: "Golden Points", v: "×100", nd: "1.485M"}, {n: "Icey", v: "×5", nd: "50.625K"}, {n: "Player XP", v: "×10", nd: "9"}] },
+        { r: "Cryo", c: "84.99Ocd", t: "epic", s: [{n: "Power", v: "×35", nd: "24.6M"}, {n: "Icey", v: "×5", nd: "4.096K"}, {n: "Aura Luck", v: "×2", nd: "50K"}] },
+        { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{n: "Player XP", v: "×10", nd: "262K"}, {n: "Ice", v: "×6", nd: "1K"}, {n: "Rune Luck", v: "×7", nd: "40"}] },
+        { r: "Blizzard", c: "2.249Qavg", t: "mythical", s: [{n: "Power", v: "×25", nd: "3.55B"}, {n: "Ice", v: "×5", nd: "625"}, {n: "Snowflakes", v: "×5", nd: "8K"}] },
+        { r: "Hurricane", c: "1.599SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
+    ],
+    // Hinzugefügte Cave Rune mit den korrekten Chancen aus dem Screenshot
+    CaveRune: [
+        { r: "Dirt", c: "1.01", t: "normal", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
+        { r: "Shallow", c: "100", t: "normal", s: [{n: "Cash", v: "×7", nd: "46.66K"}, {n: "Player XP", v: "×12", nd: "207"}, {n: "Rune Bulk", v: "×5", nd: "400"}] },
+        { r: "Cavern", c: "750", t: "normal", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
+        { r: "Grotto", c: "15K", t: "normal", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
+        { r: "Crystal Cave", c: "1M", t: "normal", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
+        { r: "Deep Hollow", c: "17.5M", t: "normal", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
+        { r: "Dripstone", c: "200M", t: "normal", s: [{n: "Cash", v: "×25", nd: "120"}, {n: "Shards", v: "×15", nd: "16.38K"}, {n: "Rune Luck", v: "×4", nd: "6"}] },
+        { r: "Bedrock", c: "30B", t: "secret", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
+    ]
+};
+
+let activeTab = "Normal";
+
+// Helper: Suffix-Parser (10K -> 10.000, 1.5M -> 1.500.000, 30B -> 30.000.000.000)
+function parseSuffix(value) {
+    if (typeof value !== 'string') return parseFloat(value) || 0;
+    const num = parseFloat(value);
+    const suffix = value.replace(/[0-9.]/g, '').toUpperCase();
+    const multipliers = { 'K': 1e3, 'M': 1e6, 'B': 1e9, 'T': 1e12, 'QA': 1e15, 'QI': 1e18, 'UD': 1e36, 'OC': 1e27, 'UVG': 1e63, 'SP': 1e24, 'DD': 1e39, 'SX': 1e21, 'QUI': 1e48, 'SPD': 1e54, 'ND': 1e60, 'DC': 1e33, 'QUA': 1e45, 'OCD': 1e57, 'VG': 1e66, 'QAVG': 1e75, 'SPVG': 1e84 };
+    return multipliers[suffix] ? num * multipliers[suffix] : num;
+}
+
+// Formatierer für Zeitwerte
+function formatTime(seconds) {
+    if (seconds === Infinity || isNaN(seconds)) return "N/A";
+    if (seconds < 60) return `${seconds.toFixed(1)}s`;
+    const mins = Math.floor(seconds / 60);
+    const hrs = Math.floor(mins / 60);
+    const days = Math.floor(hrs / 24);
+    
+    if (days > 0) return `${days}d ${hrs % 24}h`;
+    if (hrs > 0) return `${hrs}h ${mins % 60}m`;
+    return `${mins}m ${Math.floor(seconds % 60)}s`;
+}
+
+// Haupt-Rechenfunktion
+function calculateAndRender() {
+    const listContainer = document.getElementById("itemList");
+    listContainer.innerHTML = "";
+
+    const rollSpeed = parseFloat(document.getElementById("rollSpeed").value) || 1;
+    const normalLuck = parseFloat(document.getElementById("normalLuck").value) || 1;
+    const caveLuck = parseFloat(document.getElementById("caveLuck").value) || 1;
+
+    // Dynamische Luck-Zuweisung
+    const activeLuck = (activeTab === "CaveRune") ? caveLuck : normalLuck;
+
+    // Nur bei Cave Rune wird das C.Luck Feld eingeblendet
+    const caveLuckGroup = document.getElementById("caveLuckGroup");
+    if (activeTab === "CaveRune") {
+        caveLuckGroup.classList.remove("hidden");
+    } else {
+        caveLuckGroup.classList.add("hidden");
+    }
+
+    const items = gameData[activeTab] || [];
+
+    items.forEach(item => {
+        const baseChanceVal = parseSuffix(item.c);
+        const currentChance = Math.max(1, baseChanceVal / activeLuck);
+
+        const card = document.createElement("div");
+        card.className = "item-card";
+
+        let headerHtml = `
+            <div class="item-header">
+                <span class="item-name">${item.r}</span>
+                <span class="item-chance">Base: 1 in ${item.c} | Current: 1 in ${Math.round(currentChance).toLocaleString('de-DE')}</span>
+            </div>
+        `;
+
+        let statsHtml = "";
+        item.s.forEach(stat => {
+            const needVal = parseSuffix(stat.nd);
+            const rollsPerSecond = rollSpeed / currentChance;
+            const secondsToMax = needVal / rollsPerSecond;
+
+            statsHtml += `
+                <div class="stat-line">
+                    <span class="stat-name">${stat.n} ${stat.v}</span> | 
+                    Need: <strong>${stat.nd}</strong> | 
+                    Time to Max: <strong>${formatTime(secondsToMax)}</strong>
+                </div>
+            `;
+        });
+
+        card.innerHTML = headerHtml + statsHtml;
+        listContainer.appendChild(card);
+    });
+}
+
+// Erstellen der Navigations-Tabs
+function setupTabs() {
+    const tabContainer = document.getElementById("tabContainer");
+    tabContainer.innerHTML = "";
+
+    Object.keys(gameData).forEach(tabName => {
+        const btn = document.createElement("button");
+        btn.className = `tab-btn ${tabName === activeTab ? 'active' : ''}`;
+        btn.textContent = tabName === "CaveRune" ? "Cave Rune ⛏️" : tabName;
+        
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            activeTab = tabName;
+            calculateAndRender();
+        });
+        tabContainer.appendChild(btn);
+    });
+}
+
+// Live-Update bei Tastatureingabe
+document.querySelectorAll(".controls input").forEach(input => {
+    input.addEventListener("input", calculateAndRender);
+});
+
+// Setup ausführen
+setupTabs();
+calculateAndRender();
+</script>
+
+</body>
+</html>
