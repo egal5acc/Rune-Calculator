@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -311,6 +311,20 @@ function formatTime(sec) {
 }
 
 const DATA = {
+    "Hidden & Secrets": [
+        { r: "Unknown", c: "30B", t: "unknown", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
+        { r: "Gilded Arcane", c: "4.25Qa", t: "secret", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
+        { r: "Worldflare", c: "10Sp", t: "unknown", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
+        { r: "Astralis", c: "2.5Oc", t: "mythical", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
+        { r: "Celestial", c: "400Oc", t: "celestial", s: [{n: "Player XP", v: "×10", nd: "1.5K"}, {n: "Golden Points", v: "×12", nd: "22K"}, {n: "Rune Bulk", v: "×5", nd: "8K"}] },
+        { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
+        { r: "Ancient", c: "30Ud", t: "ancient", s: [{n: "Plasma Points", v: "×10", nd: "6.56K"}, {n: "Spirit Orbs", v: "×75", nd: "1.08M"}, {n: "Rune Luck", v: "×3", nd: "59"}] },
+        { r: "Infernal Sigil", c: "80Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] },
+        { r: "Ecliptor", c: "350Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
+        { r: "Eternal Whiteout", c: "30Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] },
+        { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] },
+        { r: "Hurricane", c: "1.6SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
+    ],
     Starter: [
         { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
         { r: "Uncommon", c: "6.06", t: "uncommon", s: [{n: "Power", v: "+25", nd: "313"}, {n: "Player XP", v: "+5", nd: "143"}] },
@@ -376,11 +390,11 @@ const DATA = {
         { r: "Crystal Cave", c: "1M", t: "normal", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
         { r: "Deep Hollow", c: "17.5M", t: "normal", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
         { r: "Dripstone", c: "200M", t: "normal", s: [{n: "Cash", v: "×25", nd: "120"}, {n: "Shards", v: "×15", nd: "16.38K"}, {n: "Rune Luck", v: "×4", nd: "6"}] },
-        { r: "Bedrock", c: "30B", t: "secret", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
+        { r: "Bedrock", c: "30B", t: "normal", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
     ]
 };
 
-let currentTab = "Starter";
+let currentTab = "Hidden & Secrets";
 let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || {};
 
 function initDropdowns() {
@@ -422,18 +436,16 @@ function updateLabels() {
     document.getElementById("lbl-out-runs-container").innerHTML = `${prefix}s/sec: <span id="out-runs">0</span>`;
 }
 
-// Holt und lädt getrennte Input-Werte je nachdem, ob man auf Cave-Rune oder Normal ist
 function loadTabInputs() {
-    const systemKey = currentTab === "Cave Rune" ? "cave" : "normal";
+    const systemKey = (currentTab === "Cave Rune") ? "cave" : "normal";
     
-    // Standard-Fallback-Werte für beide Systeme
     const defaults = {
         speed: "0.1",
-        "bulk-num": currentTab === "Cave Rune" ? "1" : "100",
+        "bulk-num": (currentTab === "Cave Rune") ? "1" : "100",
         "bulk-suf": "None",
-        "luck-num": currentTab === "Cave Rune" ? "1" : "2.5",
+        "luck-num": (currentTab === "Cave Rune") ? "1" : "2.5",
         "luck-suf": "None",
-        clone: currentTab === "Cave Rune" ? "1" : "3"
+        clone: (currentTab === "Cave Rune") ? "1" : "3"
     };
 
     ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
@@ -443,10 +455,9 @@ function loadTabInputs() {
     });
 }
 
-// Speichert den aktuellen Stand getrennt ab
 function saveTabInputs() {
     if (currentTab === "XP Calculator") return;
-    const systemKey = currentTab === "Cave Rune" ? "cave" : "normal";
+    const systemKey = (currentTab === "Cave Rune") ? "cave" : "normal";
     ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
         const el = document.getElementById(id);
         localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
@@ -471,7 +482,7 @@ function setTab(tab) {
         document.getElementById("cards-container").style.display = "grid";
         document.getElementById("xp-message").style.display = "none";
         updateLabels();
-        loadTabInputs(); // Holt die Daten passend für das gewählte System
+        loadTabInputs();
         calculate();
     }
 }
@@ -540,13 +551,7 @@ function calculate() {
         const baseDenom = parseStringValue(rune.c);
         const currentDenom = baseDenom / luck;
         
-        const nextRune = DATA[currentTab][index + 1];
         let isNA = (runsPerSec <= 0);
-        if (nextRune) {
-            const nextDenom = parseStringValue(nextRune.c) / luck;
-            if (nextDenom <= 1) isNA = true;
-        }
-
         const displayDenom = Math.max(currentDenom, 1);
         const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
         const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
@@ -554,6 +559,7 @@ function calculate() {
 
         return {
             originalData: rune,
+            originalIndex: index, // Behalte den Index für die stabile Sortierung
             isHidden: isHidden,
             baseDenom: baseDenom,
             chanceStr: chanceStr,
@@ -563,7 +569,13 @@ function calculate() {
         };
     });
 
-    runeList.sort((a, b) => a.isHidden - b.isHidden);
+    // Sortiert versteckte Runen nach unten, behält aber die exakte Reihenfolge der sichtbaren Runen bei!
+    runeList.sort((a, b) => {
+        if (a.isHidden !== b.isHidden) {
+            return a.isHidden - b.isHidden;
+        }
+        return a.originalIndex - b.originalIndex;
+    });
 
     let html = "";
     runeList.forEach(item => {
@@ -607,13 +619,11 @@ function calculate() {
 
 initDropdowns();
 
-// Event Listener für alle Input Felder inkl. XP Calculator
 const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
 inputIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // Nur falls vorhanden, lade den Standardwert für die XP-Felder normal
     if (id === 'xp-start' || id === 'xp-end') {
         if(localStorage.getItem('slayer_v3_'+id)) el.value = localStorage.getItem('slayer_v3_'+id);
     }
@@ -623,7 +633,7 @@ inputIds.forEach(id => {
             localStorage.setItem('slayer_v3_'+id, el.value);
             calculateXP();
         } else {
-            saveTabInputs(); // Speichert getrennt nach Normal / Cave
+            saveTabInputs();
             calculate();
         }
     };
@@ -632,7 +642,6 @@ inputIds.forEach(id => {
     el.addEventListener('change', handler);
 });
 
-// Initiiere das erste System korrekt
 loadTabInputs();
 renderTabs();
 calculate();
