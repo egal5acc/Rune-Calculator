@@ -56,10 +56,7 @@
     .input-group { display: flex; flex-direction: column; gap: 5px; }
     .input-group label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
     
-    .input-row {
-        display: flex;
-        gap: 5px;
-    }
+    .input-row { display: flex; gap: 5px; }
 
     input, select {
         background: var(--bg-main);
@@ -151,18 +148,9 @@
     }
     .visibility-toggle:hover { opacity: 1; }
 
-    .card.hidden-rune {
-        gap: 0;
-        padding-bottom: 10px;
-    }
-    .card.hidden-rune .card-header {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    .card.hidden-rune .card-chance,
-    .card.hidden-rune .stat-box {
-        display: none !important;
-    }
+    .card.hidden-rune { gap: 0; padding-bottom: 10px; }
+    .card.hidden-rune .card-header { border-bottom: none; padding-bottom: 0; }
+    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box { display: none !important; }
 
     .stat-box {
         background: var(--bg-box);
@@ -183,7 +171,6 @@
     .stat-details span { color: #fff; font-weight: bold; }
     .time-highlight { color: var(--c-rare) !important; }
 
-    /* Rarity Classes & Left Border Colors */
     .common { color: var(--c-common); border-left-color: var(--c-common); }
     .uncommon { color: var(--c-uncommon); border-left-color: var(--c-uncommon); }
     .rare { color: var(--c-rare); border-left-color: var(--c-rare); }
@@ -275,14 +262,16 @@ const SUFFIXES = [
 ];
 
 function parseStringValue(str) {
-    if(!str) return 0;
+    if(!str || str === 'Unknown') return 'Unknown';
     str = String(str).toLowerCase().replace(/,/g, '').trim();
     const match = str.match(/^([0-9.]+)([a-z]*)$/);
-    if (!match) return parseFloat(str) || 0;
+    if (!match) return parseFloat(str) || 'Unknown';
     let val = parseFloat(match[1]);
     let suf = match[2];
     if (suf) {
         if(suf === 'de') suf = 'dc';
+        if(suf === 'nvg') suf = 'novg';
+        if(suf === 'spvg') suf = 'spvg';
         const found = SUFFIXES.find(x => x.s.toLowerCase() === suf);
         if (found) val *= found.v;
     }
@@ -290,6 +279,7 @@ function parseStringValue(str) {
 }
 
 function formatNum(num) {
+    if (num === 'Unknown') return "Unknown";
     if (!isFinite(num) || isNaN(num) || num <= 0) return "0";
     if (num < 1000) return Number.isInteger(num) ? num.toString() : num.toFixed(2);
     for (let i = 0; i < SUFFIXES.length; i++) {
@@ -323,7 +313,8 @@ const DATA = {
         { r: "Ecliptor", c: "350Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
         { r: "Eternal Whiteout", c: "30Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] },
         { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] },
-        { r: "Hurricane", c: "1.6SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
+        { r: "Hurricane", c: "1SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] },
+        { r: "Cosmic", c: "2.5Nvg", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
     ],
     Starter: [
         { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
@@ -345,7 +336,7 @@ const DATA = {
         { r: "Treasury", c: "125M", t: "mythical", s: [{n: "Power", v: "×8", nd: "39"}, {n: "Rune Luck", v: "×4", nd: "29"}, {n: "Gold Chance", v: "+5", nd: "5"}] },
         { r: "Gilded", c: "2.75Qa", t: "secret", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
         { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
-        { r: "Sol Sovereign", c: "200Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] }
+        { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] }
     ],
     Magma: [
         { r: "Charred", c: "1.00", t: "uncommon", s: [{n: "Magma", v: "+5", nd: "250K"}] },
@@ -353,7 +344,7 @@ const DATA = {
         { r: "Cinder", c: "24.49B", t: "epic", s: [{n: "Power", v: "+3", nd: "240"}, {n: "Golden Points", v: "+3", nd: "45"}, {n: "Rune Luck", v: "×1.5", nd: "17"}] },
         { r: "Pyric", c: "2.749T", t: "legendary", s: [{n: "Essence", v: "+45", nd: "563"}, {n: "Magma", v: "+25", nd: "100K"}, {n: "Rune Bulk", v: "×8", nd: "175"}] },
         { r: "Searing", c: "97.49T", t: "mythical", s: [{n: "Magma", v: "×25", nd: "448B"}, {n: "Golden Points", v: "+12", nd: "60"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
-        { r: "Volcanic", c: "49.9Qa", t: "secret", s: [{n: "Power", v: "×15", nd: "16.4K"}, {n: "Lava", v: "×5", nd: "537"}, {n: "Magma", v: "×25", nd: "322"}] },
+        { r: "Volcanic", c: "49.9Qa", t: "secret", s: [{n: "Power", v: "×15", nd: "16.4K"}, {n: "Lava", v: "×5", nd: "537"}, {n: "Magma", v: "×322", nd: "322"}] },
         { r: "Worldflare", c: "9.999Sp", t: "unknown", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
         { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
     ],
@@ -363,7 +354,8 @@ const DATA = {
         { r: "Voltaris", c: "12.49Qi", t: "epic", s: [{n: "Lava", v: "×3", nd: "62.5K"}, {n: "Magma", v: "×25", nd: "2.4K"}, {n: "Rune Luck", v: "×5", nd: "1K"}] },
         { r: "Aetherion", c: "4.599Sx", t: "legendary", s: [{n: "Power", v: "×12", nd: "2.49K"}, {n: "Plasma Points", v: "×5", nd: "20K"}, {n: "Rune Luck", v: "×7", nd: "60"}] },
         { r: "Astralis", c: "2.499Oc", t: "mythical", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
-        { r: "Ecliptor", c: "499.9Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] }
+        { r: "Ecliptor", c: "499.9Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
+        { r: "Cosmic", c: "2.5Nvg", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
     ],
     Snow: [
         { r: "Snowfall", c: "1.00", t: "uncommon", s: [{n: "Snowflakes", v: "×10", nd: "4.5K"}, {n: "Snowflakes", v: "×15", nd: "233M"}, {n: "Player XP", v: "×10", nd: "3.8T"}] },
@@ -380,10 +372,13 @@ const DATA = {
         { r: "Cryo", c: "84.99Ocd", t: "epic", s: [{n: "Power", v: "×35", nd: "24.6M"}, {n: "Icey", v: "×5", nd: "4.096K"}, {n: "Aura Luck", v: "×2", nd: "50K"}] },
         { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{n: "Player XP", v: "×10", nd: "262K"}, {n: "Ice", v: "×6", nd: "1K"}, {n: "Rune Luck", v: "×7", nd: "40"}] },
         { r: "Blizzard", c: "2.249Qavg", t: "mythical", s: [{n: "Power", v: "×25", nd: "3.55B"}, {n: "Ice", v: "×5", nd: "625"}, {n: "Snowflakes", v: "×5", nd: "8K"}] },
-        { r: "Hurricane", c: "1.599SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
+        { r: "Hurricane", c: "1SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
     ],
     "Cave Hidden": [
-        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
+        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
+        { r: "Geode", c: "2T", t: "secret", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
+        { r: "Glowstone", c: "150T", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
+        { r: "Moonstone", c: "100Qa", t: "celestial", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
     ],
     "Cave Rune": [
         { r: "Dirt", c: "1.01", t: "common", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
@@ -391,9 +386,7 @@ const DATA = {
         { r: "Cavern", c: "750", t: "rare", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
         { r: "Grotto", c: "15K", t: "epic", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
         { r: "Crystal Cave", c: "1M", t: "legendary", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
-        { r: "Deep Hollow", c: "17.5M", t: "mythical", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
-        { r: "Dripstone", c: "200M", t: "legendary", s: [{n: "Cash", v: "×25", nd: "120"}, {n: "Shards", v: "×15", nd: "16.38K"}, {n: "Rune Luck", v: "×4", nd: "6"}] },
-        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] }
+        { r: "Deep Hollow", c: "17.5M", t: "mythical", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] }
     ]
 };
 
@@ -430,7 +423,6 @@ function renderTabs() {
     ).join("");
 }
 
-// Hilfsfunktion um zu prüfen, ob der Tab das Cave-System verwendet
 function isCaveSystem(tab) {
     return tab === "Cave Rune" || tab === "Cave Hidden";
 }
@@ -599,17 +591,19 @@ function calculate() {
             </div>`;
 
         rune.s.forEach(stat => {
-            const needVal = parseStringValue(stat.nd);
-            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0) ? (needVal / item.expectedDropsPerSec) : Infinity;
-            const timeStr = (item.isNA || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
-            
+            const isStatUnknown = (stat.nd === "Unknown");
+            const needVal = isStatUnknown ? "Unknown" : parseStringValue(stat.nd);
+            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (needVal / item.expectedDropsPerSec) : Infinity;
+            const timeStr = (item.isNA || isStatUnknown || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+            const needDisplay = isStatUnknown ? "Unknown" : formatNum(needVal);
+
             html += `
             <div class="stat-box ${rune.t}">
                 <div class="stat-head">
                     <span>${stat.n} <span class="stat-val">${stat.v}</span></span>
                 </div>
                 <div class="stat-details">
-                    <div>Need: <span>${formatNum(needVal)}</span></div>
+                    <div>Need: <span>${needDisplay}</span></div>
                     <div>Exp/sec: <span>${item.expStr}</span></div>
                     <div style="grid-column: span 2; margin-top:5px;">
                         Time to Max: <span class="time-highlight">${timeStr}</span>
