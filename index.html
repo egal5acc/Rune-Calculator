@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slayer Inc Rune Calculator</title>
+<title>Slayer Inc Master Calculator</title>
 <style>
     :root {
         --bg-main: #0b0d10;
@@ -14,6 +14,7 @@
         --text-main: #e0e6ed;
         --text-muted: #8b949e;
         
+        /* Standard Rarity Colors */
         --c-common: #a0a0a0;
         --c-uncommon: #4caf50;
         --c-rare: #2196f3;
@@ -24,6 +25,31 @@
         --c-unknown: #8a2be2;
         --c-celestial: #00ffff;
         --c-ancient: #fffacd;
+
+        /* Aura Special Colors */
+        --c-divine: #ff007f;
+        --c-demonic: #d63031;
+        --c-primal: #e17055;
+        --c-transcendent: #74b9ff;
+        --c-cosmic: #a29bfe;
+        --c-ethereal: #55efc4;
+        --c-void: #6c5ce7;
+        --c-immortal: #fdcb6e;
+
+        /* Custom Runen Farben */
+        --c-white: #e0e6ed;
+        --c-purple: #9b59b6;
+        --c-dark-purple: #6c5ce7;
+        --c-gold: #f1c40f;
+        --c-green: #2ecc71;
+        --c-red: #e74c3c;
+        --c-grey: #7f8c8d;
+        --c-orange: #e67e22;
+        --c-pink: #fd79a8;
+        --c-blue: #3498db;
+        --c-dark-blue: #192a56;
+        --c-cyan: #00cec9;
+        --c-brown: #d35400;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -89,7 +115,7 @@
         padding-top: 15px;
         border-top: 1px solid var(--border);
         display: flex;
-        justify-content: space-around;
+        justify-space: space-around;
         font-size: 14px;
         color: var(--text-muted);
     }
@@ -111,6 +137,7 @@
         cursor: pointer;
         font-weight: bold;
         transition: 0.2s;
+        white-space: nowrap;
     }
     .tab-btn.active { background: var(--border); color: #fff; }
 
@@ -171,6 +198,7 @@
     .stat-details span { color: #fff; font-weight: bold; }
     .time-highlight { color: var(--c-rare) !important; }
 
+    /* Rarities & Specific Classes */
     .common { color: var(--c-common); border-left-color: var(--c-common); }
     .uncommon { color: var(--c-uncommon); border-left-color: var(--c-uncommon); }
     .rare { color: var(--c-rare); border-left-color: var(--c-rare); }
@@ -181,14 +209,39 @@
     .unknown { color: var(--c-unknown); border-left-color: var(--c-unknown); text-shadow: 0 0 5px rgba(138,43,226,0.3); }
     .celestial { color: var(--c-celestial); border-left-color: var(--c-celestial); text-shadow: 0 0 5px rgba(0,255,255,0.3); }
     .ancient { color: var(--c-ancient); border-left-color: var(--c-ancient); text-shadow: 0 0 5px rgba(255,250,205,0.3); }
+    
+    .divine { color: var(--c-divine); border-left-color: var(--c-divine); }
+    .demonic { color: var(--c-demonic); border-left-color: var(--c-demonic); }
+    .primal { color: var(--c-primal); border-left-color: var(--c-primal); }
+    .transcendent { color: var(--c-transcendent); border-left-color: var(--c-transcendent); }
+    .cosmic { color: var(--c-cosmic); border-left-color: var(--c-cosmic); }
+    .ethereal { color: var(--c-ethereal); border-left-color: var(--c-ethereal); }
+    .void { color: var(--c-void); border-left-color: var(--c-void); }
+    .immortal { color: var(--c-immortal); border-left-color: var(--c-immortal); }
+
+    /* Custom Runen Styling */
+    .rune-shiny, .rune-frost, .rune-snowfall, .rune-eternalwhiteout, .rune-cinder { color: #ffffff; border-left-color: #ffffff; text-shadow: 0 0 6px rgba(255,255,255,0.5); }
+    .rune-regal, .rune-voltaris, .rune-winterswrath, .rune-crystalcave, .rune-infernalsigil { color: #a29bfe; border-left-color: #9b59b6; text-shadow: 0 0 6px rgba(155,89,182,0.5); }
+    .rune-auric, .rune-solsovereign, .rune-searing, .rune-ecliptor, .rune-glowstone { color: #f1c40f; border-left-color: #f1c40f; text-shadow: 0 0 6px rgba(241,196,15,0.5); }
+    .rune-imperial, .rune-aetherion, .rune-cryo, .rune-icebound, .rune-absolutezero { color: #3498db; border-left-color: #192a56; text-shadow: 0 0 6px rgba(52,152,219,0.5); }
+    .rune-treasury, .rune-gildedarcane, .rune-blizzard, .rune-grotto, .rune-geode { color: #2ecc71; border-left-color: #2ecc71; text-shadow: 0 0 6px rgba(46,204,113,0.5); }
+    .rune-kingsmark, .rune-volcanic { color: #e74c3c; border-left-color: #e74c3c; text-shadow: 0 0 6px rgba(231,76,60,0.5); }
+    .rune-charred, .rune-cavern { color: #95a5a6; border-left-color: #7f8c8d; }
+    .rune-ignis, .rune-worldflare, .rune-dirt, .rune-deephollow { color: #e67e22; border-left-color: #e67e22; text-shadow: 0 0 6px rgba(230,126,34,0.5); }
+    .rune-pyric { color: #fd79a8; border-left-color: #e84393; text-shadow: 0 0 6px rgba(232,67,147,0.5); }
+    .rune-plasmatic, .rune-glacier, .rune-frostbite, .rune-shallow, .rune-dripstone { color: #74b9ff; border-left-color: #0984e3; text-shadow: 0 0 6px rgba(9,132,227,0.5); }
+    .rune-arclight, .rune-astralis, .rune-cosmic, .rune-shiver, .rune-glacial { color: #00cec9; border-left-color: #00cec9; text-shadow: 0 0 6px rgba(0,206,201,0.5); }
+    .rune-hurricane, .rune-bedrock, .rune-subterra { color: #6c5ce7; border-left-color: #6c5ce7; text-shadow: 0 0 8px rgba(108,92,231,0.6); }
+    .rune-moonstone { color: #dfe6e9; border-left-color: #b2bec3; text-shadow: 0 0 8px rgba(255,255,255,0.7); }
 </style>
 </head>
 <body>
 
 <div class="container">
     <div class="panel">
-        <h1 id="main-title">Slayer Inc Rune Calculator</h1>
+        <h1 id="main-title">Slayer Inc Master Calculator</h1>
         
+        <!-- Controls für Runen -->
         <div class="input-grid" id="rune-controls">
             <div class="input-group">
                 <label id="lbl-speed">Rune Speed (sec)</label>
@@ -214,6 +267,29 @@
             </div>
         </div>
 
+        <!-- Controls für Auren -->
+        <div class="input-grid" id="aura-controls" style="display: none;">
+            <div class="input-group">
+                <label>Aura Speed (sec)</label>
+                <input type="number" id="aura-speed" value="1.0" step="0.01">
+            </div>
+            <div class="input-group">
+                <label>Aura Bulk</label>
+                <div class="input-row">
+                    <input type="number" id="aura-bulk-num" value="1">
+                    <select id="aura-bulk-suf"></select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Aura Luck</label>
+                <div class="input-row">
+                    <input type="number" id="aura-luck-num" value="1" step="0.1">
+                    <select id="aura-luck-suf"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls für XP -->
         <div class="input-grid" id="xp-controls" style="display: none;">
             <div class="input-group">
                 <label>Current Level (S)</label>
@@ -229,7 +305,7 @@
             </div>
         </div>
         
-        <div id="error-box" class="error-box">⚠️ SYSTEM ERROR: Rune Speed must be between 0.08s and 1.00s!</div>
+        <div id="error-box" class="error-box">⚠️ SYSTEM ERROR: Speed must be greater than 0!</div>
 
         <div class="global-stats" id="global-stats-bar">
             <div>Rolls/sec: <span id="out-rolls">0</span></div>
@@ -300,21 +376,40 @@ function formatTime(sec) {
     return Math.floor(sec/31536000) + "y " + Math.floor((sec%31536000)/2592000) + "mo";
 }
 
+const AURA_DATA = [
+    { r: "Basic Aura", c: "2", t: "common", s: [{n: "Power", v: "1.25x"}] },
+    { r: "Acid Aura", c: "4", t: "uncommon", s: [{n: "Power", v: "1.75x"}, {n: "GoldenPoints", v: "1.1x"}] },
+    { r: "Golden Aura", c: "10", t: "rare", s: [{n: "Power", v: "2.5x"}, {n: "GoldenPoints", v: "1.25x"}] },
+    { r: "Shadow Aura", c: "50", t: "epic", s: [{n: "Power", v: "3.25x"}, {n: "GoldenPoints", v: "1.5x"}, {n: "Lava", v: "1.1x"}] },
+    { r: "Mystic Aura", c: "250", t: "legendary", s: [{n: "Power", v: "5x"}, {n: "GoldenPoints", v: "2.25x"}, {n: "Lava", v: "1.25x"}, {n: "RuneBulk", v: "1.25x"}] },
+    { r: "Demonic Aura", c: "1k", t: "mythical", s: [{n: "Power", v: "8x"}, {n: "GoldenPoints", v: "3x"}, {n: "Lava", v: "2x"}, {n: "Plasma", v: "1.1x"}, {n: "RuneBulk", v: "1.5x"}] },
+    { r: "Yin Yang Aura", c: "10k", t: "divine", s: [{n: "Power", v: "15x"}, {n: "GoldenPoints", v: "5x"}, {n: "Lava", v: "4x"}, {n: "Plasma", v: "2x"}, {n: "RuneBulk", v: "2x"}, {n: "RuneLuck", v: "1.1x"}] },
+    { r: "Auroraveil Aura", c: "100k", t: "celestial", s: [{n: "Power", v: "25x"}, {n: "GoldenPoints", v: "8x"}, {n: "Lava", v: "8x"}, {n: "Plasma", v: "4x"}, {n: "RuneBulk", v: "4x"}, {n: "RuneLuck", v: "2x"}] },
+    { r: "Crimson Revenant Aura", c: "1M", t: "demonic", s: [{n: "Power", v: "60x"}, {n: "GoldenPoints", v: "15x"}, {n: "Lava", v: "16x"}, {n: "Plasma", v: "8x"}, {n: "RuneBulk", v: "8x"}, {n: "RuneLuck", v: "4x"}] },
+    { r: "Deepsea Sovereign Aura", c: "5M", t: "ancient", s: [{n: "Power", v: "x175"}, {n: "GoldenPoints", v: "x20"}, {n: "Lava", v: "x20"}, {n: "Plasma", v: "x15"}, {n: "RuneBulk", v: "x10"}, {n: "RuneLuck", v: "x8"}] },
+    { r: "Yinbound Aura", c: "25M", t: "primal", s: [{n: "Power", v: "x300"}, {n: "GoldenPoints", v: "x30"}, {n: "Lava", v: "x25"}, {n: "Plasma", v: "x25"}, {n: "RuneBulk", v: "x15"}, {n: "RuneLuck", v: "x15"}] },
+    { r: "Frostbound Monarch Aura", c: "100M", t: "transcendent", s: [{n: "Power", v: "x500"}, {n: "GoldenPoints", v: "x50"}, {n: "Lava", v: "x45"}, {n: "Plasma", v: "x75"}, {n: "RuneBulk", v: "x25"}, {n: "RuneLuck", v: "x25"}] },
+    { r: "Frostveil Aura", c: "1B", t: "cosmic", s: [{n: "Power", v: "x1k"}, {n: "GoldenPoints", v: "x75"}, {n: "Lava", v: "x75"}, {n: "Plasma", v: "x100"}, {n: "RuneBulk", v: "x45"}, {n: "RuneLuck", v: "x45"}] },
+    { r: "Emerald Providence", c: "15B", t: "ethereal", s: [{n: "Power", v: "x1.25k"}, {n: "GoldenPoints", v: "x100"}, {n: "Lava", v: "x100"}, {n: "Plasma", v: "x125"}, {n: "RuneBulk", v: "x75"}, {n: "RuneLuck", v: "x75"}, {n: "Snow", v: "2x"}, {n: "Ice", v: "x1.5"}] },
+    { r: "RuneBlight", c: "250B", t: "void", s: [{n: "Power", v: "2.5K"}, {n: "GoldenPoints", v: "x150"}, {n: "Lava", v: "x125"}, {n: "Plasma", v: "x125"}, {n: "RuneBulk", v: "x100"}, {n: "RuneLuck", v: "x100"}, {n: "Snow", v: "x5"}, {n: "Ice", v: "x3"}] },
+    { r: "Crown of The Sun", c: "10T", t: "immortal", s: [{n: "Power", v: "x5k"}, {n: "GoldenPoints", v: "x200"}, {n: "Lava", v: "x175"}, {n: "Plasma", v: "x175"}, {n: "RuneBulk", v: "x200"}, {n: "RuneLuck", v: "x200"}, {n: "Snow", v: "x8"}, {n: "Ice", v: "x5"}, {n: "Cave Rune Bulk", v: "x1.6"}] }
+];
+
 const DATA = {
     "Hidden Runes": [
-        { r: "Unknown", c: "30B", t: "unknown", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
-        { r: "Gilded Arcane", c: "4.25Qa", t: "secret", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
-        { r: "Worldflare", c: "10Sp", t: "unknown", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
-        { r: "Astralis", c: "2.5Oc", t: "mythical", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
+        { r: "Unknown", c: "30B", t: "rune-bedrock", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
+        { r: "Gilded Arcane", c: "4.25Qa", t: "rune-gildedarcane", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
+        { r: "Worldflare", c: "10Sp", t: "rune-worldflare", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
+        { r: "Astralis", c: "2.5Oc", t: "rune-astralis", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
         { r: "Celestial", c: "400Oc", t: "celestial", s: [{n: "Player XP", v: "×10", nd: "1.5K"}, {n: "Golden Points", v: "×12", nd: "22K"}, {n: "Rune Bulk", v: "×5", nd: "8K"}] },
-        { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
+        { r: "Kingsmark", c: "900N", t: "rune-kingsmark", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
         { r: "Ancient", c: "30Ud", t: "ancient", s: [{n: "Plasma Points", v: "×10", nd: "6.56K"}, {n: "Spirit Orbs", v: "×75", nd: "1.08M"}, {n: "Rune Luck", v: "×3", nd: "59"}] },
-        { r: "Infernal Sigil", c: "80Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] },
-        { r: "Ecliptor", c: "350Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
-        { r: "Eternal Whiteout", c: "30Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] },
-        { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] },
-        { r: "Hurricane", c: "1SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] },
-        { r: "Cosmic", c: "2.5Nvg", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
+        { r: "Infernal Sigil", c: "80Dd", t: "rune-infernalsigil", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] },
+        { r: "Ecliptor", c: "350Td", t: "rune-ecliptor", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
+        { r: "Eternal Whiteout", c: "30Nd", t: "rune-eternalwhiteout", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] },
+        { r: "Sol Sovereign", c: "100Uvg", t: "rune-solsovereign", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] },
+        { r: "Hurricane", c: "1SpVg", t: "rune-hurricane", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] },
+        { r: "Cosmic", c: "2.5Nvg", t: "rune-cosmic", s: [{n: "Power", v: "×250", nd: "498"}, {n: "Spirit Orbs", v: "×15", nd: "14K"}, {n: "Cash", v: "×15", nd: "14K"}] }
     ],
     Starter: [
         { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
@@ -329,98 +424,96 @@ const DATA = {
         { r: "Ancient", c: "40.07Ud", t: "ancient", s: [{n: "Plasma Points", v: "×10", nd: "6.56K"}, {n: "Spirit Orbs", v: "×75", nd: "1.08M"}, {n: "Rune Luck", v: "×3", nd: "59"}] }
     ],
     Golden: [
-        { r: "Shiny", c: "1.00", t: "uncommon", s: [{n: "Golden Points", v: "+8", nd: "5.72K"}, {n: "Player XP", v: "+10", nd: "57.7K"}] },
-        { r: "Regal", c: "100K", t: "rare", s: [{n: "Golden Points", v: "+25", nd: "186"}] },
-        { r: "Auric", c: "2M", t: "epic", s: [{n: "Damage", v: "+25", nd: "12.9K"}, {n: "Essence", v: "+20", nd: "46.5"}, {n: "Rune Luck", v: "×2.5", nd: "15"}] },
-        { r: "Imperial", c: "25M", t: "legendary", s: [{n: "Golden Points", v: "+125", nd: "125"}, {n: "Player XP", v: "×2", nd: "20"}, {n: "Essence", v: "×25", nd: "800"}] },
-        { r: "Treasury", c: "125M", t: "mythical", s: [{n: "Power", v: "×8", nd: "39"}, {n: "Rune Luck", v: "×4", nd: "29"}, {n: "Gold Chance", v: "+5", nd: "5"}] },
-        { r: "Gilded", c: "2.75Qa", t: "secret", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
-        { r: "Kingsmark", c: "900N", t: "unknown", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
-        { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] }
+        { r: "Shiny", c: "1.00", t: "rune-shiny", s: [{n: "Golden Points", v: "+8", nd: "5.72K"}, {n: "Player XP", v: "+10", nd: "57.7K"}] },
+        { r: "Regal", c: "100K", t: "rune-regal", s: [{n: "Golden Points", v: "+25", nd: "186"}] },
+        { r: "Auric", c: "2M", t: "rune-auric", s: [{n: "Damage", v: "+25", nd: "12.9K"}, {n: "Essence", v: "+20", nd: "46.5"}, {n: "Rune Luck", v: "×2.5", nd: "15"}] },
+        { r: "Imperial", c: "25M", t: "rune-imperial", s: [{n: "Golden Points", v: "+125", nd: "125"}, {n: "Player XP", v: "×2", nd: "20"}, {n: "Essence", v: "×25", nd: "800"}] },
+        { r: "Treasury", c: "125M", t: "rune-treasury", s: [{n: "Power", v: "×8", nd: "39"}, {n: "Rune Luck", v: "×4", nd: "29"}, {n: "Gold Chance", v: "+5", nd: "5"}] },
+        { r: "Gilded Arcane", c: "2.75Qa", t: "rune-gildedarcane", s: [{n: "Arcane Player XP", v: "×8", nd: "400"}, {n: "Lava", v: "×10", nd: "15.8K"}, {n: "Rune Bulk", v: "×3", nd: "40"}] },
+        { r: "Kingsmark", c: "900N", t: "rune-kingsmark", s: [{n: "Power", v: "×75", nd: "3.7K"}, {n: "Golden Points", v: "×10", nd: "154"}, {n: "Rune Luck", v: "×5", nd: "4.1K"}] },
+        { r: "Sol Sovereign", c: "100Uvg", t: "rune-solsovereign", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] }
     ],
     Magma: [
-        { r: "Charred", c: "1.00", t: "uncommon", s: [{n: "Magma", v: "+5", nd: "250K"}] },
-        { r: "Ignis", c: "499.9M", t: "rare", s: [{n: "Magma", v: "×15", nd: "5.4M"}, {n: "Damage", v: "+10", nd: "10K"}] },
-        { r: "Cinder", c: "24.49B", t: "epic", s: [{n: "Power", v: "+3", nd: "240"}, {n: "Golden Points", v: "+3", nd: "45"}, {n: "Rune Luck", v: "×1.5", nd: "17"}] },
-        { r: "Pyric", c: "2.749T", t: "legendary", s: [{n: "Essence", v: "+45", nd: "563"}, {n: "Magma", v: "+25", nd: "100K"}, {n: "Rune Bulk", v: "×8", nd: "175"}] },
-        { r: "Searing", c: "97.49T", t: "mythical", s: [{n: "Magma", v: "×25", nd: "448B"}, {n: "Golden Points", v: "+12", nd: "60"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
-        { r: "Volcanic", c: "49.9Qa", t: "secret", s: [{n: "Power", v: "×15", nd: "16.4K"}, {n: "Lava", v: "×5", nd: "537"}, {n: "Magma", v: "×322", nd: "322"}] },
-        { r: "Worldflare", c: "9.999Sp", t: "unknown", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
-        { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
+        { r: "Charred", c: "1.00", t: "rune-charred", s: [{n: "Magma", v: "+5", nd: "250K"}] },
+        { r: "Ignis", c: "499.9M", t: "rune-ignis", s: [{n: "Magma", v: "×15", nd: "5.4M"}, {n: "Damage", v: "+10", nd: "10K"}] },
+        { r: "Cinder", c: "24.49B", t: "rune-cinder", s: [{n: "Power", v: "+3", nd: "240"}, {n: "Golden Points", v: "+3", nd: "45"}, {n: "Rune Luck", v: "×1.5", nd: "17"}] },
+        { r: "Pyric", c: "2.749T", t: "rune-pyric", s: [{n: "Essence", v: "+45", nd: "563"}, {n: "Magma", v: "+25", nd: "100K"}, {n: "Rune Bulk", v: "×8", nd: "175"}] },
+        { r: "Searing", c: "97.49T", t: "rune-searing", s: [{n: "Magma", v: "×25", nd: "448B"}, {n: "Golden Points", v: "+12", nd: "60"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
+        { r: "Volcanic", c: "49.9Qa", t: "rune-volcanic", s: [{n: "Power", v: "×15", nd: "16.4K"}, {n: "Lava", v: "×5", nd: "537"}, {n: "Magma", v: "×322", nd: "322"}] },
+        { r: "Worldflare", c: "9.999Sp", t: "rune-worldflare", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
+        { r: "Infernal Sigil", c: "124.9Dd", t: "rune-infernalsigil", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
     ],
     Plasma: [
-        { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "576B"}] },
-        { r: "Arclight", c: "999.9Qa", t: "rare", s: [{n: "Plasma Points", v: "+25", nd: "32.2K"}, {n: "Player XP", v: "×4", nd: "300"}, {n: "Rune Bulk", v: "×4", nd: "1M"}] },
-        { r: "Voltaris", c: "12.49Qi", t: "epic", s: [{n: "Lava", v: "×3", nd: "62.5K"}, {n: "Magma", v: "×25", nd: "2.4K"}, {n: "Rune Luck", v: "×5", nd: "1K"}] },
-        { r: "Aetherion", c: "4.599Sx", t: "legendary", s: [{n: "Power", v: "×12", nd: "2.49K"}, {n: "Plasma Points", v: "×5", nd: "20K"}, {n: "Rune Luck", v: "×7", nd: "60"}] },
-        { r: "Astralis", c: "2.499Oc", t: "mythical", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
-        { r: "Ecliptor", c: "499.9Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
-        { r: "Cosmic", c: "2.5Nvg", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
+        { r: "Plasmatic", c: "1.00", t: "rune-plasmatic", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "576B"}] },
+        { r: "Arclight", c: "999.9Qa", t: "rune-arclight", s: [{n: "Plasma Points", v: "+25", nd: "32.2K"}, {n: "Player XP", v: "×4", nd: "300"}, {n: "Rune Bulk", v: "×4", nd: "1M"}] },
+        { r: "Voltaris", c: "12.49Qi", t: "rune-voltaris", s: [{n: "Lava", v: "×3", nd: "62.5K"}, {n: "Magma", v: "×25", nd: "2.4K"}, {n: "Rune Luck", v: "×5", nd: "1K"}] },
+        { r: "Aetherion", c: "4.599Sx", t: "rune-aetherion", s: [{n: "Power", v: "×12", nd: "2.49K"}, {n: "Plasma Points", v: "×5", nd: "20K"}, {n: "Rune Luck", v: "×7", nd: "60"}] },
+        { r: "Astralis", c: "2.499Oc", t: "rune-astralis", s: [{n: "Plasma Points", v: "×9", nd: "16.8K"}, {n: "Lava", v: "×5", nd: "800"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
+        { r: "Ecliptor", c: "499.9Td", t: "rune-ecliptor", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
+        { r: "Cosmic", c: "2.5Nvg", t: "rune-cosmic", s: [{n: "Power", v: "×250", nd: "498"}, {n: "Spirit Orbs", v: "×15", nd: "14K"}, {n: "Cash", v: "×15", nd: "14K"}] }
     ],
     Snow: [
-        { r: "Snowfall", c: "1.00", t: "uncommon", s: [{n: "Snowflakes", v: "×10", nd: "4.5K"}, {n: "Snowflakes", v: "×15", nd: "233M"}, {n: "Player XP", v: "×10", nd: "3.8T"}] },
-        { r: "Frostbite", c: "99.99N", t: "rare", s: [{n: "Power", v: "×40", nd: "36.9K"}, {n: "Player XP", v: "×10", nd: "430M"}, {n: "Snowflakes", v: "×7", nd: "800"}] },
-        { r: "Icebound", c: "1.999Dd", t: "epic", s: [{n: "Player XP", v: "×2", nd: "2"}, {n: "Snowflakes", v: "×5", nd: "1.6K"}, {n: "Plasma Points", v: "×9", nd: "1.68M"}] },
-        { r: "Glacial", c: "49.99Td", t: "legendary", s: [{n: "Power", v: "×50", nd: "3.91M"}, {n: "Magma", v: "×45", nd: "169B"}, {n: "Rune Luck", v: "×3", nd: "34"}] },
-        { r: "Winters Wrath", c: "999.9Qui", t: "mythical", s: [{n: "Power", v: "×25", nd: "16.8M"}, {n: "Snowflakes", v: "×5", nd: "800"}, {n: "Rune Bulk", v: "×5", nd: "10K"}] },
-        { r: "Absolute Zero", c: "12.49Spd", t: "secret", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83K"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
-        { r: "Eternal Whiteout", c: "29.99Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] }
+        { r: "Snowfall", c: "1.00", t: "rune-snowfall", s: [{n: "Snowflakes", v: "×10", nd: "4.5K"}, {n: "Snowflakes", v: "×15", nd: "233M"}, {n: "Player XP", v: "×10", nd: "3.8T"}] },
+        { r: "Frostbite", c: "99.99N", t: "rune-frostbite", s: [{n: "Power", v: "×40", nd: "36.9K"}, {n: "Player XP", v: "×10", nd: "430M"}, {n: "Snowflakes", v: "×7", nd: "800"}] },
+        { r: "Icebound", c: "1.999Dd", t: "rune-icebound", s: [{n: "Player XP", v: "×2", nd: "2"}, {n: "Snowflakes", v: "×5", nd: "1.6K"}, {n: "Plasma Points", v: "×9", nd: "1.68M"}] },
+        { r: "Glacial", c: "49.99Td", t: "rune-glacial", s: [{n: "Power", v: "×50", nd: "3.91M"}, {n: "Magma", v: "×45", nd: "169B"}, {n: "Rune Luck", v: "×3", nd: "34"}] },
+        { r: "Winters Wrath", c: "999.9Qui", t: "rune-winterswrath", s: [{n: "Power", v: "×25", nd: "16.8M"}, {n: "Snowflakes", v: "×5", nd: "800"}, {n: "Rune Bulk", v: "×5", nd: "10K"}] },
+        { r: "Absolute Zero", c: "12.49Spd", t: "rune-absolutezero", s: [{n: "Player XP", v: "×50", nd: "1.56B"}, {n: "Power", v: "×25", nd: "16.83K"}, {n: "Icey", v: "×15", nd: "1.4K"}] },
+        { r: "Eternal Whiteout", c: "29.99Nd", t: "rune-eternalwhiteout", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] }
     ],
     Icey: [
-        { r: "Frost", c: "1.00", t: "uncommon", s: [{n: "Power", v: "×10", nd: "1.953Dc"}, {n: "Ice", v: "×4", nd: "3Qa"}, {n: "Player XP", v: "×10", nd: "12.16Qi"}] },
-        { r: "Glacier", c: "3.99Qua", t: "rare", s: [{n: "Golden Points", v: "×100", nd: "1.485M"}, {n: "Icey", v: "×5", nd: "50.625K"}, {n: "Player XP", v: "×10", nd: "9"}] },
-        { r: "Cryo", c: "84.99Ocd", t: "epic", s: [{n: "Power", v: "×35", nd: "24.6M"}, {n: "Icey", v: "×5", nd: "4.096K"}, {n: "Aura Luck", v: "×2", nd: "50K"}] },
-        { r: "Shiver", c: "499.9Vg", t: "legendary", s: [{n: "Player XP", v: "×10", nd: "262K"}, {n: "Ice", v: "×6", nd: "1K"}, {n: "Rune Luck", v: "×7", nd: "40"}] },
-        { r: "Blizzard", c: "2.249Qavg", t: "mythical", s: [{n: "Power", v: "×25", nd: "3.55B"}, {n: "Ice", v: "×5", nd: "625"}, {n: "Snowflakes", v: "×5", nd: "8K"}] },
-        { r: "Hurricane", c: "1SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
+        { r: "Frost", c: "1.00", t: "rune-frost", s: [{n: "Power", v: "×10", nd: "1.953Dc"}, {n: "Ice", v: "×4", nd: "3Qa"}, {n: "Player XP", v: "×10", nd: "12.16Qi"}] },
+        { r: "Glacier", c: "3.99Qua", t: "rune-glacier", s: [{n: "Golden Points", v: "×100", nd: "1.485M"}, {n: "Icey", v: "×5", nd: "50.625K"}, {n: "Player XP", v: "×10", nd: "9"}] },
+        { r: "Cryo", c: "84.99Ocd", t: "rune-cryo", s: [{n: "Power", v: "×35", nd: "24.6M"}, {n: "Icey", v: "×5", nd: "4.096K"}, {n: "Aura Luck", v: "×2", nd: "50K"}] },
+        { r: "Shiver", c: "499.9Vg", t: "rune-shiver", s: [{n: "Player XP", v: "×10", nd: "262K"}, {n: "Ice", v: "×6", nd: "1K"}, {n: "Rune Luck", v: "×7", nd: "40"}] },
+        { r: "Blizzard", c: "2.249Qavg", t: "rune-blizzard", s: [{n: "Power", v: "×25", nd: "3.55B"}, {n: "Ice", v: "×5", nd: "625"}, {n: "Snowflakes", v: "×5", nd: "8K"}] },
+        { r: "Hurricane", c: "1SpVg", t: "rune-hurricane", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] }
     ],
     "Cave Hidden": [
-        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
-        { r: "Geode", c: "2T", t: "secret", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
-        { r: "Glowstone", c: "150T", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
-        { r: "Moonstone", c: "100Qa", t: "celestial", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
+        { r: "Bedrock", c: "30B", t: "rune-bedrock", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
+        { r: "Geode", c: "2T", t: "rune-geode", s: [{n: "AntiMatter", v: "×4", nd: "40.2"}, {n: "Rune Bulk", v: "×45", nd: "88"}, {n: "Plasma Points", v: "×4M", nd: "192"}] },
+        { r: "Glowstone", c: "150T", t: "rune-glowstone", s: [{n: "Power", v: "×256", nd: "16"}, {n: "Cash", v: "×100", nd: "990"}, {n: "C. RuneLuck", v: "×2.25", nd: "25"}] },
+        { r: "Moonstone", c: "100Qa", t: "rune-moonstone", s: [{n: "Shards", v: "×250", nd: "249"}, {n: "Ore Gain", v: "×5", nd: "625"}, {n: "Cash", v: "×50", nd: "384K"}] },
+        { r: "Subterra", c: "150Qi", t: "rune-subterra", s: [{n: "Power", v: "×1M", nd: "1.2K"}, {n: "Ore Gain", v: "×5", nd: "4"}, {n: "Cash", v: "×100", nd: "48"}] }
     ],
     "Cave Rune": [
-        { r: "Dirt", c: "1.01", t: "common", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
-        { r: "Shallow", c: "100", t: "uncommon", s: [{n: "Cash", v: "×7", nd: "46.66K"}, {n: "Player XP", v: "×12", nd: "207"}, {n: "Rune Bulk", v: "×5", nd: "400"}] },
-        { r: "Cavern", c: "750", t: "rare", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
-        { r: "Grotto", c: "15K", t: "epic", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
-        { r: "Crystal Cave", c: "1M", t: "legendary", s: [{n: "Shards", v: "×25", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
-        { r: "Deep Hollow", c: "17.5M", t: "mythical", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
-        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
-        { r: "Geode", c: "2T", t: "secret", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
-        { r: "Glowstone", c: "150T", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
-        { r: "Moonstone", c: "100Qa", t: "celestial", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] }
-    ],
+        { r: "Dirt", c: "1.01", t: "rune-dirt", s: [{n: "Cash", v: "×7", nd: "240"}, {n: "Player XP", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×3", nd: "10K"}] },
+        { r: "Shallow", c: "100", t: "rune-shallow", s: [{n: "Cash", v: "×7", nd: "46.66K"}, {n: "Player XP", v: "×12", nd: "207"}, {n: "Rune Bulk", v: "×5", nd: "400"}] },
+        { r: "Cavern", c: "750", t: "rune-cavern", s: [{n: "Cash", v: "×10", nd: "512"}, {n: "Ore Damage", v: "×25", nd: "4800"}, {n: "Rune Luck", v: "×2", nd: "2"}] },
+        { r: "Grotto", c: "15K", t: "rune-grotto", s: [{n: "Player XP", v: "×7", nd: "2"}, {n: "Ice", v: "×45", nd: "1271"}, {n: "Cash", v: "×15", nd: "182"}] },
+        { r: "Crystal Cave", c: "1M", t: "rune-crystalcave", s: [{n: "Shards", v: "×250", nd: "240"}, {n: "Rune Bulk", v: "×7", nd: "11"}, {n: "Power", v: "×1K", nd: "694"}] },
+        { r: "Deep Hollow", c: "17.5M", t: "rune-deephollow", s: [{n: "Cash", v: "×25", nd: "1200"}, {n: "Ore Damage", v: "×100", nd: "1100"}, {n: "Rune Clone", v: "×2", nd: "1"}] },
+        { r: "Dripstone", c: "200M", t: "rune-dripstone", s: [{n: "Cash", v: "×5", nd: "Unknown"}, {n: "Ore Damage", v: "×5", nd: "Unknown"}] },
+        { r: "Bedrock", c: "30B", t: "rune-bedrock", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
+        { r: "Geode", c: "2T", t: "rune-geode", s: [{n: "AntiMatter", v: "×4", nd: "40.2"}, {n: "Rune Bulk", v: "×45", nd: "88"}, {n: "Plasma Points", v: "×4M", nd: "192"}] },
+        { r: "Glowstone", c: "150T", t: "rune-glowstone", s: [{n: "Power", v: "×256", nd: "16"}, {n: "Cash", v: "×100", nd: "990"}, {n: "C. RuneLuck", v: "×2.25", nd: "25"}] },
+        { r: "Moonstone", c: "100Qa", t: "rune-moonstone", s: [{n: "Shards", v: "×250", nd: "249"}, {n: "Ore Gain", v: "×5", nd: "625"}, {n: "Cash", v: "×50", nd: "384K"}] },
+        { r: "Subterra", c: "150Qi", t: "rune-subterra", s: [{n: "Power", v: "×1M", nd: "1.2K"}, {n: "Ore Gain", v: "×5", nd: "4"}, {n: "Cash", v: "×100", nd: "48"}] }
+    ]
 };
 
 let currentTab = "Hidden Runes";
 let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || {};
 
 function initDropdowns() {
-    const bSuf = document.getElementById("bulk-suf");
-    const lSuf = document.getElementById("luck-suf");
+    const selects = ["bulk-suf", "luck-suf", "aura-bulk-suf", "aura-luck-suf"];
     const reversedSuffixes = [...SUFFIXES].reverse();
     
-    bSuf.innerHTML = "";
-    lSuf.innerHTML = "";
-    
-    reversedSuffixes.forEach(x => {
-        const op1 = document.createElement("option");
-        op1.value = x.s; op1.innerText = x.s;
-        bSuf.appendChild(op1);
-        
-        const op2 = document.createElement("option");
-        op2.value = x.s; op2.innerText = x.s;
-        lSuf.appendChild(op2);
+    selects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = "";
+        reversedSuffixes.forEach(x => {
+            const op = document.createElement("option");
+            op.value = x.s; op.innerText = x.s;
+            el.appendChild(op);
+        });
+        el.value = "None";
     });
-    
-    bSuf.value = "None";
-    lSuf.value = "None";
 }
 
 function renderTabs() {
-    const tabs = ["XP Calculator"].concat(Object.keys(DATA));
+    const tabs = ["XP Calculator", "Aura Calculator"].concat(Object.keys(DATA));
     const cont = document.getElementById("tabs-container");
     cont.innerHTML = tabs.map(tab => 
         `<div class="tab-btn ${tab===currentTab?'active':''}" onclick="setTab('${tab}')">${tab}</div>`
@@ -441,6 +534,7 @@ function updateLabels() {
 }
 
 function loadTabInputs() {
+    if (currentTab === "XP Calculator" || currentTab === "Aura Calculator") return;
     const systemKey = isCaveSystem(currentTab) ? "cave" : "normal";
     
     const defaults = {
@@ -460,7 +554,7 @@ function loadTabInputs() {
 }
 
 function saveTabInputs() {
-    if (currentTab === "XP Calculator") return;
+    if (currentTab === "XP Calculator" || currentTab === "Aura Calculator") return;
     const systemKey = isCaveSystem(currentTab) ? "cave" : "normal";
     ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
         const el = document.getElementById(id);
@@ -472,19 +566,28 @@ function setTab(tab) {
     currentTab = tab;
     renderTabs();
     
+    document.getElementById("rune-controls").style.display = "none";
+    document.getElementById("xp-controls").style.display = "none";
+    document.getElementById("aura-controls").style.display = "none";
+    document.getElementById("error-box").style.display = "none";
+    document.getElementById("global-stats-bar").style.display = "none";
+    document.getElementById("cards-container").style.display = "none";
+    document.getElementById("xp-message").style.display = "none";
+
     if (tab === "XP Calculator") {
-        document.getElementById("rune-controls").style.display = "none";
         document.getElementById("xp-controls").style.display = "grid";
-        document.getElementById("error-box").style.display = "none";
-        document.getElementById("global-stats-bar").style.display = "none";
-        document.getElementById("cards-container").style.display = "none";
         document.getElementById("xp-message").style.display = "block";
         calculateXP();
+    } else if (tab === "Aura Calculator") {
+        document.getElementById("aura-controls").style.display = "grid";
+        document.getElementById("global-stats-bar").style.display = "flex";
+        document.getElementById("cards-container").style.display = "grid";
+        document.getElementById("lbl-out-runs-container").innerHTML = `Auras/sec: <span id="out-runs">0</span>`;
+        calculateAura();
     } else {
         document.getElementById("rune-controls").style.display = "grid";
-        document.getElementById("xp-controls").style.display = "none";
+        document.getElementById("global-stats-bar").style.display = "flex";
         document.getElementById("cards-container").style.display = "grid";
-        document.getElementById("xp-message").style.display = "none";
         updateLabels();
         loadTabInputs();
         calculate();
@@ -514,6 +617,74 @@ function calculateXP() {
     
     const xp = 500 * (Math.pow(1.2, E) - Math.pow(1.2, S));
     document.getElementById("xp-result").value = formatNum(xp);
+}
+
+function calculateAura() {
+    const speed = parseFloat(document.getElementById("aura-speed").value) || 0;
+    const bulkNum = parseFloat(document.getElementById("aura-bulk-num").value) || 0;
+    const bulkMult = getMultiplier(document.getElementById("aura-bulk-suf").value);
+    const bulk = bulkNum * bulkMult;
+
+    const luckNum = parseFloat(document.getElementById("aura-luck-num").value) || 0;
+    const luckMult = getMultiplier(document.getElementById("aura-luck-suf").value);
+    const luck = luckNum * luckMult;
+
+    const errBox = document.getElementById("error-box");
+    const statsBar = document.getElementById("global-stats-bar");
+    const cardsCont = document.getElementById("cards-container");
+
+    if (speed <= 0) {
+        errBox.style.display = "block";
+        statsBar.style.display = "none";
+        cardsCont.innerHTML = `<div style="text-align:center; color:var(--c-mythical); width:100%; grid-column: 1/-1; padding: 40px; font-weight:bold;">SPEED MUST BE GREATER THAN 0</div>`;
+        return;
+    } else {
+        errBox.style.display = "none";
+        statsBar.style.display = "flex";
+    }
+
+    const rollsPerSec = 1 / speed;
+    const runsPerSec = rollsPerSec * bulk;
+
+    document.getElementById("out-rolls").innerText = formatNum(rollsPerSec);
+    document.getElementById("out-runs").innerText = formatNum(runsPerSec);
+
+    let html = "";
+    AURA_DATA.forEach(aura => {
+        const baseDenom = parseStringValue(aura.c);
+        
+        const isLuckInvalid = (!isFinite(luck) || luck <= 0);
+        let currentDenom = isLuckInvalid ? "Unknown" : (baseDenom / luck);
+        
+        const isNA = (runsPerSec <= 0 || currentDenom === "Unknown" || !isFinite(currentDenom) || currentDenom <= 0);
+        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / currentDenom));
+        
+        const chanceStr = isNA ? "N/A" : `1 in ${formatNum(currentDenom)}`;
+        const expStr = (isNA || expectedDropsPerSec <= 0) ? "N/A" : formatNum(expectedDropsPerSec);
+
+        const timeToFirstSec = expectedDropsPerSec > 0 ? (1 / expectedDropsPerSec) : Infinity;
+        const timeToFirstStr = isFinite(timeToFirstSec) ? formatTime(timeToFirstSec) : "N/A";
+
+        html += `
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title ${aura.t}">${aura.r}</div>
+                <div class="card-chance">Base: 1 in ${formatNum(baseDenom)} | Current: ${chanceStr}</div>
+            </div>
+            <div class="stat-box ${aura.t}">
+                <div class="stat-details" style="grid-template-columns: 1fr 1fr;">
+                    <div>Exp/sec: <span>${expStr}</span></div>
+                    <div>Est. Time for 1: <span class="time-highlight">${timeToFirstStr}</span></div>
+                </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.85em;">
+                <strong>Stats:</strong><br>
+                ${aura.s.map(stat => `<span style="color:#aaa;">${stat.n}: <b style="color:#fff;">${stat.v}</b></span>`).join(" | ")}
+            </div>
+        </div>`;
+    });
+
+    cardsCont.innerHTML = html;
 }
 
 function calculate() {
@@ -553,13 +724,15 @@ function calculate() {
     let runeList = DATA[currentTab].map((rune, index) => {
         const isHidden = !!(hiddenRunes[currentTab] && hiddenRunes[currentTab][rune.r]);
         const baseDenom = parseStringValue(rune.c);
-        const currentDenom = baseDenom / luck;
         
-        let isNA = (runsPerSec <= 0);
-        const displayDenom = Math.max(currentDenom, 1);
-        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
-        const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
-        const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
+        const isLuckInvalid = (!isFinite(luck) || luck <= 0);
+        let currentDenom = isLuckInvalid ? "Unknown" : (baseDenom / luck);
+        
+        const isNA = (runsPerSec <= 0 || currentDenom === "Unknown" || !isFinite(currentDenom) || currentDenom <= 0);
+        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / currentDenom) * clone);
+        
+        const chanceStr = isNA ? "N/A" : `1 in ${formatNum(currentDenom)}`;
+        const expStr = (isNA || expectedDropsPerSec <= 0) ? "N/A" : formatNum(expectedDropsPerSec);
 
         return {
             originalData: rune,
@@ -574,9 +747,7 @@ function calculate() {
     });
 
     runeList.sort((a, b) => {
-        if (a.isHidden !== b.isHidden) {
-            return a.isHidden - b.isHidden;
-        }
+        if (a.isHidden !== b.isHidden) return a.isHidden - b.isHidden;
         return a.originalIndex - b.originalIndex;
     });
 
@@ -597,8 +768,9 @@ function calculate() {
         rune.s.forEach(stat => {
             const isStatUnknown = (stat.nd === "Unknown");
             const needVal = isStatUnknown ? "Unknown" : parseStringValue(stat.nd);
+            
             const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (needVal / item.expectedDropsPerSec) : Infinity;
-            const timeStr = (item.isNA || isStatUnknown || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+            const timeStr = (item.isNA || isStatUnknown || !isFinite(timeSec) || timeSec <= 0) ? "N/A" : formatTime(timeSec);
             const needDisplay = isStatUnknown ? "Unknown" : formatNum(needVal);
 
             html += `
@@ -624,7 +796,12 @@ function calculate() {
 
 initDropdowns();
 
-const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
+const inputIds = [
+    'speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 
+    'aura-speed', 'aura-bulk-num', 'aura-bulk-suf', 'aura-luck-num', 'aura-luck-suf',
+    'xp-start', 'xp-end'
+];
+
 inputIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -637,6 +814,8 @@ inputIds.forEach(id => {
         if (id === 'xp-start' || id === 'xp-end') {
             localStorage.setItem('slayer_v3_'+id, el.value);
             calculateXP();
+        } else if (currentTab === "Aura Calculator") {
+            calculateAura();
         } else {
             saveTabInputs();
             calculate();
