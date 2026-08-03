@@ -111,6 +111,7 @@
         cursor: pointer;
         font-weight: bold;
         transition: 0.2s;
+        white-space: nowrap;
     }
     .tab-btn.active { background: var(--border); color: #fff; }
 
@@ -150,7 +151,7 @@
 
     .card.hidden-rune { gap: 0; padding-bottom: 10px; }
     .card.hidden-rune .card-header { border-bottom: none; padding-bottom: 0; }
-    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box { display: none !important; }
+    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box, .card.hidden-rune .aura-stats-grid { display: none !important; }
 
     .stat-box {
         background: var(--bg-box);
@@ -301,9 +302,24 @@ function formatTime(sec) {
 }
 
 const DATA = {
-     Auras: [
-  { r: "Aura 1", c: "100", t: "common" },
-  { r: "Aura 2", c: "1000", t: "rare"}] }
+    Auras: [
+        { r: "Basic Aura", c: "2", t: "common" },
+        { r: "Acid Aura", c: "4", t: "uncommon" },
+        { r: "Golden Aura", c: "10", t: "rare" },
+        { r: "Shadow Aura", c: "50", t: "epic" },
+        { r: "Mystic Aura", c: "250", t: "legendary" },
+        { r: "Demonic Aura", c: "1K", t: "mythical" },
+        { r: "Yin Yang Aura", c: "10K", t: "secret" },
+        { r: "Auroraveil Aura", c: "100K", t: "celestial" },
+        { r: "Crimson Revenant Aura", c: "1M", t: "ancient" },
+        { r: "Deepsea Sovereign Aura", c: "5M", t: "unknown" },
+        { r: "Yinbound Aura", c: "25M", t: "unknown" },
+        { r: "Frostbound Monarch Aura", c: "100M", t: "unknown" },
+        { r: "Frostveil Aura", c: "1B", t: "unknown" },
+        { r: "Emerald Providence", c: "15B", t: "unknown" },
+        { r: "RuneBlight", c: "250B", t: "unknown" },
+        { r: "Crown of The Sun", c: "10T", t: "unknown" },
+        { r: "Viridian Cataclysm", c: "600T", t: "unknown" }
     ],
     "Hidden Runes": [
         { r: "Unknown", c: "30B", t: "unknown", s: [{n: "Damage", v: "×10", nd: "232"}, {n: "Essence", v: "×100", nd: "95"}, {n: "Rune Luck", v: "×2.25", nd: "13"}] },
@@ -394,7 +410,7 @@ const DATA = {
     ]
 };
 
-let currentTab = "Hidden Runes";
+let currentTab = "XP Calculator";
 let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || {};
 
 function initDropdowns() {
@@ -598,17 +614,25 @@ function calculate() {
             const pityBase = item.baseDenom * 1.1;
             const pityCurrent = Math.max(pityBase / luck, 1);
             const pityStr = item.isNA ? "N/A" : `1 in ${formatNum(pityCurrent)}`;
+            
+            // Neuer Pity-Timer, der direkt an deine Rolls/sec gekoppelt ist
+            const timeToPitySec = (!item.isNA && runsPerSec > 0) ? (pityCurrent / runsPerSec) : Infinity;
+            const timeToPityStr = (item.isNA || timeToPitySec === Infinity) ? "N/A" : formatTime(timeToPitySec);
 
             html += `
             <div class="stat-box ${rune.t}">
                 <div class="stat-head">
-                    <span>Pity Limit</span>
+                    <span>Pity Limit & Timer</span>
                 </div>
                 <div class="stat-details">
                     <div>Base Pity: <span>1 in ${formatNum(pityBase)}</span></div>
                     <div>Current Pity: <span>${pityStr}</span></div>
+                    <div style="grid-column: span 2; margin-top:5px;">
+                        Guaranteed Time: <span class="time-highlight">${timeToPityStr}</span>
+                    </div>
                 </div>
             </div>`;
+
         } else if (rune.s) {
             rune.s.forEach(stat => {
                 const isStatUnknown = (stat.nd === "Unknown");
@@ -666,7 +690,7 @@ inputIds.forEach(id => {
 
 loadTabInputs();
 renderTabs();
-calculate();
+setTab("XP Calculator");
 </script>
 </body>
 </html>
