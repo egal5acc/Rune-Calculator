@@ -552,7 +552,7 @@ function setTab(tab) {
         document.getElementById("global-stats-bar").style.display = "none";
         document.getElementById("cards-container").style.display = "none";
         document.getElementById("xp-message").style.display = "block";
-        calculateXP();
+        if (typeof calculateXP === "function") calculateXP();
     } else {
         document.getElementById("rune-controls").style.display = "grid";
         document.getElementById("xp-controls").style.display = "none";
@@ -567,7 +567,7 @@ function setTab(tab) {
 
         updateLabels();
         loadTabInputs();
-        calculate();
+        if (typeof calculate === "function") calculate();
     }
 }
 
@@ -575,7 +575,7 @@ function toggleRuneVisibility(tab, runeName) {
     if (!hiddenRunes[tab]) hiddenRunes[tab] = {};
     hiddenRunes[tab][runeName] = !hiddenRunes[tab][runeName];
     localStorage.setItem('slayer_v3_hidden_runes', JSON.stringify(hiddenRunes));
-    calculate();
+    if (typeof calculate === "function") calculate();
 }
 
 function getMultiplier(suffixStr) {
@@ -596,29 +596,6 @@ function calculateXP() {
     document.getElementById("xp-result").value = formatNum(xp);
 }
 
-function calculateAuraTimer(totalPerSec) {
-    if (!isAuraSystem(currentTab)) return;
-
-    const currNum = parseFloat(document.getElementById("aura-curr-num").value) || 0;
-    const currMult = getMultiplier(document.getElementById("aura-curr-suf").value);
-    const current = currNum * currMult;
-
-    const targetNum = parseFloat(document.getElementById("aura-target-num").value) || 0;
-    const targetMult = getMultiplier(document.getElementById("aura-target-suf").value);
-    const target = targetNum * targetMult;
-
-    if (target <= current) {
-        document.getElementById("aura-time-result").value = "0s (Done)";
-        return;
-    }
-
-    // Er rechnet Ziel minus Aktuell, teilt es durch Auras/sec
-    const remaining = target - current;
-    const timeSec = totalPerSec > 0 ? (remaining / totalPerSec) : 0;
-    
-    document.getElementById("aura-time-result").value = formatTime(timeSec);
-}
-
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
     const clone = parseFloat(document.getElementById("clone").value) || 1;
@@ -627,6 +604,7 @@ function calculate() {
     const statsBar = document.getElementById("global-stats-bar");
     const cardsCont = document.getElementById("cards-container");
 
+    // Individuelle Limits und Error-Messages je nach Tab-Typ
     const minSpeed = isAuraSystem(currentTab) ? 0.05 : 0.08;
     let prefix = "Rune";
     if (isAuraSystem(currentTab)) prefix = "Aura";
@@ -647,83 +625,149 @@ function calculate() {
     const bulkMult = getMultiplier(document.getElementById("bulk-suf").value);
     const bulk = bulkNum * bulkMult;
 
-    const luckNum = parseFloat(document.getElementById("luck-num").value) || 1;
+    const luckNum = parseFloat(document.getElementById("luck-num").value) || 0;
     const luckMult = getMultiplier(document.getElementById("luck-suf").value);
     const luck = luckNum * luckMult;
 
-    // Berechnungen der Rate
-    const rollsPerSec = speed > 0 ? 1 / speed : 0;
-    const totalPerSec = rollsPerSec * bulk * clone;
+    const rollsPerSec = speed > 0 ? (1 / speed) : 0;
+    const runsPerSec = rollsPerSec * bulk;
 
     document.getElementById("out-rolls").innerText = formatNum(rollsPerSec);
-    document.getElementById("out-runs").innerText = formatNum(totalPerSec);
+    document.getElementById("out-runs").innerText = formatNum(runsPerSec);
 
-    // Ziel Timer aktualisieren (nur im Aura Tab)
-    calculateAuraTimer(totalPerSec);
+    if (!DATA[currentTab]) return;
 
-    // Karten generieren
-    const items = DATA[currentTab] || [];
-    let html = "";
-    
-    items.forEach(item => {
-        const isHidden = hiddenRunes[currentTab] && hiddenRunes[currentTab][item.r];
-        const cardClass = isHidden ? "card hidden-rune" : "card";
+    let runeList = DATA[currentTab].map((rune, index) => {
+        const isHidden = !!(hiddenRunes[currentTab] && hiddenRunes[currentTab][rune.r]);
+        const baseDenom = parseStringValue(rune.c);
+        const currentDenom = baseDenom / luck;
         
-        const chance = parseStringValue(item.c);
-        const effectiveChance = chance / luck;
-        const dropsPerSec = totalPerSec / effectiveChance;
-        const timePerDrop = dropsPerSec > 0 ? 1 / dropsPerSec : Infinity;
+        let isNA = (runsPerSec <= 0);
+        const displayDenom = Math.max(currentDenom, 1);
+        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
+        const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
+        const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
 
-        let statsHtml = "";
-        if (item.s && !isHidden) {
-            statsHtml = '<div class="aura-stats-grid" style="display:flex; flex-direction:column; gap:10px;">';
-            item.s.forEach(stat => {
-                statsHtml += `<div class="stat-box ${item.t}">
-                    <div class="stat-head"><span>${stat.n}</span><span class="stat-val">${stat.v}</span></div>
+        return {
+            originalData: rune,
+            originalIndex: index,
+            isHidden: isHidden,
+            baseDenom: baseDenom,
+            chanceStr: chanceStr,
+            expStr: expStr,
+            expectedDropsPerSec: expectedDropsPerSec,
+            isNA: isNA
+        };
+    });
+
+    runeList.sort((a, b) => {
+        if (a.isHidden !== b.isHidden) {
+            return a.isHidden - b.isHidden;
+        }
+        return a.originalIndex - b.originalIndex;
+    });
+
+    let html = "";
+    runeList.forEach(item => {
+        const rune = item.originalData;
+        const eyeIcon = item.isHidden ? "🙈" : "👁️";
+        const hiddenClass = item.isHidden ? "hidden-rune" : "";
+
+        html += `
+        <div class="card ${hiddenClass}">
+            <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
+            <div class="card-header">
+                <div class="card-title ${rune.t}">${rune.r}</div>
+                <div class="card-chance">Base: 1 in ${formatNum(item.baseDenom)} | Current: ${item.chanceStr}</div>
+            </div>`;
+
+        if (currentTab === "Auras") {
+            const pityBase = item.baseDenom * 1.1;
+            const pityCurrent = Math.max(pityBase / luck, 1);
+            const pityStr = item.isNA ? "N/A" : `1 in ${formatNum(pityCurrent)}`;
+
+            html += `
+            <div class="stat-box ${rune.t}">
+                <div class="stat-head">
+                    <span>Pity Limit</span>
+                </div>
+                <div class="stat-details">
+                    <div>Base Pity: <span>1 in ${formatNum(pityBase)}</span></div>
+                    <div>Current Pity: <span>${pityStr}</span></div>
+                </div>
+            </div>`;
+
+            if (rune.s && rune.s.length > 0) {
+                html += `<div class="aura-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;">`;
+                rune.s.forEach(stat => {
+                    html += `
+                    <div class="stat-box ${rune.t}" style="padding: 6px 10px; border-left-width: 3px;">
+                        <div style="font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted);">${stat.n}</span>
+                            <span class="stat-val" style="font-size: 13px;">${stat.v}</span>
+                        </div>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+        } else if (rune.s) {
+            rune.s.forEach(stat => {
+                const isStatUnknown = (stat.nd === "Unknown");
+                const needVal = isStatUnknown ? "Unknown" : parseStringValue(stat.nd);
+                const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (needVal / item.expectedDropsPerSec) : Infinity;
+                const timeStr = (item.isNA || isStatUnknown || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+                const needDisplay = isStatUnknown ? "Unknown" : formatNum(needVal);
+
+                html += `
+                <div class="stat-box ${rune.t}">
+                    <div class="stat-head">
+                        <span>${stat.n} <span class="stat-val">${stat.v}</span></span>
+                    </div>
                     <div class="stat-details">
-                        <div>Normal: <span>${stat.nd}</span></div>
+                        <div>Need: <span>${needDisplay}</span></div>
+                        <div>Exp/sec: <span>${item.expStr}</span></div>
+                        <div style="grid-column: span 2; margin-top:5px;">
+                            Time to Max: <span class="time-highlight">${timeStr}</span>
+                        </div>
                     </div>
                 </div>`;
             });
-            statsHtml += '</div>';
         }
 
-        html += `<div class="${cardClass}">
-            <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '👁️' : '🙈'}</div>
-            <div class="card-header ${item.t}">
-                <div class="card-title">${item.r}</div>
-                <div class="card-chance">1 in ${formatNum(chance)}</div>
-            </div>
-            ${!isHidden ? `
-            <div style="font-size: 14px; text-align: center; margin-bottom: 10px;">
-                <div>Drops/sec: <span style="color: #fff; font-weight: bold;">${formatNum(dropsPerSec)}</span></div>
-                <div>Est. Time: <span class="time-highlight">${formatTime(timePerDrop)}</span></div>
-            </div>
-            ` : ''}
-            ${statsHtml}
-        </div>`;
+        html += `</div>`;
     });
-    
+
     cardsCont.innerHTML = html;
 }
 
-window.onload = () => {
-    initDropdowns();
-    renderTabs();
-    setTab("Auras");
+initDropdowns();
 
-    // Event Listener für alle Input Änderungen
-    document.querySelectorAll('input, select').forEach(el => {
-        el.addEventListener('input', () => {
-            if (currentTab === "XP Calculator") {
-                calculateXP();
-            } else {
-                saveTabInputs();
-                calculate();
-            }
-        });
-    });
-};
+const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
+inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (id === 'xp-start' || id === 'xp-end') {
+        if(localStorage.getItem('slayer_v3_'+id)) el.value = localStorage.getItem('slayer_v3_'+id);
+    }
+    
+    const handler = () => {
+        if (id === 'xp-start' || id === 'xp-end') {
+            localStorage.setItem('slayer_v3_'+id, el.value);
+            calculateXP();
+        } else {
+            saveTabInputs();
+            calculate();
+        }
+    };
+    
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+});
+
+loadTabInputs();
+renderTabs();
+setTab("XP Calculator");
 </script>
 </body>
 </html>
