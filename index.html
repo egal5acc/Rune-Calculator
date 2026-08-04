@@ -250,10 +250,10 @@
 <script>
 const SUFFIXES = [
     {v: 1e120, s: 'Notg'}, {v: 1e117, s: 'Octg'}, {v: 1e114, s: 'Sptg'}, {v: 1e111, s: 'Sxtg'},
-    {v: 1e108, s: 'Qitg'}, {v: 1e105, s: 'Qatg'}, {v: 1e102, s: 'Tt'},   {v: 1e99,  s: 'Dtg'},
+    {v: 1e108, s: 'Qitg'}, {v: 1e105, s: 'Qatg'}, {v: 1e102,  s: 'Tt'},   {v: 1e99,  s: 'Dtg'},
     {v: 1e96,  s: 'Utg'},  {v: 1e93,  s: 'Tr'},   {v: 1e90,  s: 'Novg'}, {v: 1e87,  s: 'Ocvg'},
     {v: 1e84,  s: 'Spvg'}, {v: 1e81,  s: 'Sxvg'}, {v: 1e78,  s: 'Qivg'}, {v: 1e75,  s: 'Qavg'},
-    {v: 1e72,  s: 'Tvg'},  {v: 1e69,  s: 'Dvg'},  {v: 1e66,  s: 'Uvg'},  {v: 1e63,  s: 'Vg'}, 
+    {v: 1e72,  s: 'Tvg'},  {v: 1e69,  s: 'Dvg'},  {v: 1e66,  s: 'Uvg'},  {v: 1e63,  s: 'Vg'},  
     {v: 1e60,  s: 'Nd'},   {v: 1e57,  s: 'Ocd'},  {v: 1e54,  s: 'Spd'},  {v: 1e51,  s: 'Sxd'},  
     {v: 1e48,  s: 'Qui'},  {v: 1e45,  s: 'Qua'},  {v: 1e42,  s: 'Td'},   {v: 1e39,  s: 'Dd'},   
     {v: 1e36,  s: 'Ud'},   {v: 1e33,  s: 'Dc'},   {v: 1e30,  s: 'N'},    {v: 1e27,  s: 'Oc'},   
@@ -472,12 +472,13 @@ function updateLabels() {
     document.getElementById("lbl-bulk").innerText = `${prefix} Bulk`;
     document.getElementById("lbl-luck").innerText = `${prefix} Luck`;
     
+    // Umbenennung zu Auras Open im Auras-Tab
     if (isAuraSystem(currentTab)) {
         document.getElementById("lbl-clone").innerText = "Auras Open";
     } else {
         document.getElementById("lbl-clone").innerText = `${prefix} Clone`;
     }
-
+    
     document.getElementById("lbl-out-runs-container").innerHTML = `${prefix}s/sec: <span id="out-runs">0</span>`;
 }
 
@@ -492,7 +493,7 @@ function loadTabInputs() {
         "bulk-suf": "None",
         "luck-num": (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "2.5",
         "luck-suf": "None",
-        clone: isAuraSystem(currentTab) ? "0" : ((isCaveSystem(currentTab)) ? "1" : "3")
+        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3"
     };
 
     ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
@@ -564,6 +565,8 @@ function calculateXP() {
 
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
+    const clone = parseFloat(document.getElementById("clone").value) || 1;
+    
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
     const cardsCont = document.getElementById("cards-container");
@@ -592,108 +595,73 @@ function calculate() {
     const luckMult = getMultiplier(document.getElementById("luck-suf").value);
     const luck = luckNum * luckMult;
 
-    const cloneVal = parseFloat(document.getElementById("clone").value) || 0;
-
-    const rollsPerSec = speed > 0 ? (1 / speed) : 0;
-    
-    let totalPerSec = 0;
-    if (isAuraSystem(currentTab)) {
-        totalPerSec = rollsPerSec * bulk;
-    } else {
-        totalPerSec = rollsPerSec * bulk * (cloneVal > 0 ? cloneVal : 1);
-    }
+    const rollsPerSec = speed > 0 ? (1 / speed) * clone : 0;
+    const itemsPerSec = rollsPerSec * bulk;
 
     document.getElementById("out-rolls").innerText = formatNum(rollsPerSec);
-    document.getElementById("out-runs").innerText = formatNum(totalPerSec);
+    document.getElementById("out-runs").innerText = formatNum(itemsPerSec);
 
     const items = DATA[currentTab] || [];
-    if (!hiddenRunes[currentTab]) hiddenRunes[currentTab] = {};
+    const hidden = hiddenRunes[currentTab] || {};
 
-    let cardsHtml = "";
-
-    items.forEach(item => {
-        const isHidden = hiddenRunes[currentTab][item.r] || false;
-        const baseChance = parseStringValue(item.c);
-        const rClass = item.t || "common";
+    cardsCont.innerHTML = items.map(item => {
+        const isHidden = hidden[item.r];
+        const chanceVal = parseStringValue(item.c);
+        
+        let statsHTML = "";
 
         if (isAuraSystem(currentTab)) {
-            // Aura Logic: Pity & Auras Open & Timer Calculation
-            const effectivePity = (baseChance !== "Unknown" && luck > 0) ? (baseChance / luck) : "Unknown";
-            const aurasOpened = cloneVal; // Value from "Auras Open" input
-            
-            let remainingRolls = "Unknown";
-            let timeSec = "Unknown";
+            // Auras Open Logik: Pity minus bereits geöffnete Auren
+            const aurasOpen = clone; 
+            const remaining = Math.max(0, chanceVal - aurasOpen);
+            const sec = rollsPerSec > 0 ? remaining / rollsPerSec : 0;
+            const timeText = formatTime(sec);
 
-            if (effectivePity !== "Unknown") {
-                remainingRolls = Math.max(0, effectivePity - aurasOpened);
-                timeSec = totalPerSec > 0 ? (remainingRolls / totalPerSec) : Infinity;
-            }
-
-            cardsHtml += `
-            <div class="card ${isHidden ? 'hidden-rune' : ''}">
-                <span class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '👁️' : '🙈'}</span>
-                <div class="card-header ${rClass}">
-                    <div class="card-title">${item.r}</div>
-                    <div class="card-chance">Base Pity: 1 in ${formatNum(baseChance)}</div>
-                </div>
-                ${!isHidden ? `
-                <div class="stat-box ${rClass}">
+            statsHTML = `
+                <div class="stat-box ${item.t}">
                     <div class="stat-head">
                         <span>Pity Progress</span>
-                        <span class="stat-val">${remainingRolls === 0 ? 'UNLOCKED!' : formatNum(remainingRolls) + ' left'}</span>
+                        <span class="stat-val">${formatNum(remaining)} left</span>
                     </div>
                     <div class="stat-details">
-                        <div>Target Pity: <span>1 in ${formatNum(effectivePity)}</span></div>
-                        <div>Auras Open: <span>${formatNum(aurasOpened)}</span></div>
-                        <div>Left Rolls: <span>${formatNum(remainingRolls)}</span></div>
-                        <div>Est. Time: <span class="time-highlight">${remainingRolls === 0 ? 'Done' : formatTime(timeSec)}</span></div>
+                        <div>Target: <span>${item.c}</span></div>
+                        <div>Time: <span class="time-highlight">${timeText}</span></div>
                     </div>
                 </div>
-                ` : ''}
-            </div>`;
-        } else {
-            // Standard Rune & Cave Calculation
-            const effChance = (baseChance !== "Unknown" && luck > 0) ? (baseChance / luck) : "Unknown";
-            const timeSec = (effChance !== "Unknown" && totalPerSec > 0) ? (effChance / totalPerSec) : Infinity;
-
-            let statsHtml = "";
-            if (item.s && Array.isArray(item.s)) {
-                statsHtml = item.s.map(st => `
-                    <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:3px;">
-                        <span>${st.n}: <strong style="color:#fff;">${st.v}</strong></span>
-                        <span>1 in ${st.nd}</span>
+            `;
+        } else if (item.s) {
+            statsHTML = item.s.map(stat => {
+                const ndVal = parseStringValue(stat.nd);
+                const sec = itemsPerSec > 0 ? ndVal / itemsPerSec : 0;
+                return `
+                    <div class="stat-box ${item.t}">
+                        <div class="stat-head">
+                            <span>${stat.n}</span>
+                            <span class="stat-val">${stat.v}</span>
+                        </div>
+                        <div class="stat-details">
+                            <div>Needed: <span>${stat.nd}</span></div>
+                            <div>Time: <span class="time-highlight">${formatTime(sec)}</span></div>
+                        </div>
                     </div>
-                `).join("");
-            }
-
-            cardsHtml += `
-            <div class="card ${isHidden ? 'hidden-rune' : ''}">
-                <span class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '👁️' : '🙈'}</span>
-                <div class="card-header ${rClass}">
-                    <div class="card-title">${item.r}</div>
-                    <div class="card-chance">1 in ${formatNum(baseChance)}</div>
-                </div>
-                ${!isHidden ? `
-                <div class="stat-box ${rClass}">
-                    <div class="stat-head">
-                        <span>Drop Rate</span>
-                        <span class="stat-val">1 in ${formatNum(effChance)}</span>
-                    </div>
-                    <div class="stat-details">
-                        <div>Est. Time: <span class="time-highlight">${formatTime(timeSec)}</span></div>
-                        <div>Per Min: <span>${formatNum(timeSec > 0 ? 60 / timeSec : 0)}</span></div>
-                    </div>
-                    ${statsHtml ? `<div style="margin-top:8px; border-top:1px solid var(--border); padding-top:5px;">${statsHtml}</div>` : ''}
-                </div>
-                ` : ''}
-            </div>`;
+                `;
+            }).join("");
         }
-    });
 
-    cardsCont.innerHTML = cardsHtml;
+        return `
+            <div class="card ${isHidden ? 'hidden-rune' : ''}">
+                <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '➕' : '➖'}</div>
+                <div class="card-header">
+                    <div class="card-title ${item.t}">${item.r}</div>
+                    <div class="card-chance">Chance: 1 in ${item.c}</div>
+                </div>
+                ${statsHTML}
+            </div>
+        `;
+    }).join("");
 }
 
-// Event-Listener zur automatischen Neuberechnung
+// Event-Listener für Live-Berechnung und Speicherung
 ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -710,11 +678,10 @@ function calculate() {
     }
 });
 
-// Initialisierung
+// Initialisierung beim Start
 initDropdowns();
 renderTabs();
 setTab("XP Calculator");
 </script>
-
 </body>
 </html>
