@@ -151,7 +151,7 @@
 
     .card.hidden-rune { gap: 0; padding-bottom: 10px; }
     .card.hidden-rune .card-header { border-bottom: none; padding-bottom: 0; }
-    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box { display: none !important; }
+    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box, .card.hidden-rune .aura-stats-grid { display: none !important; }
 
     .stat-box {
         background: var(--bg-box);
@@ -159,15 +159,8 @@
         padding: 12px;
         border-left: 4px solid var(--border);
     }
-    .stat-head { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center;
-        font-weight: bold; 
-        margin-bottom: 8px; 
-        font-size: 14px; 
-    }
-    .stat-val { color: var(--c-secret); font-weight: bold; }
+    .stat-head { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+    .stat-val { color: var(--c-secret); }
     
     .stat-details {
         display: grid;
@@ -216,16 +209,9 @@
                     <select id="luck-suf"></select>
                 </div>
             </div>
-            <div class="input-group" id="group-clone">
+            <div class="input-group">
                 <label id="lbl-clone">Rune Clone</label>
                 <input type="number" id="clone" value="3">
-            </div>
-            <div class="input-group" id="group-auras-open" style="display: none;">
-                <label>Auras Open</label>
-                <div class="input-row">
-                    <input type="number" id="auras-open-num" value="0">
-                    <select id="auras-open-suf"></select>
-                </div>
             </div>
         </div>
 
@@ -241,6 +227,28 @@
             <div class="input-group">
                 <label>Required XP</label>
                 <input type="text" id="xp-result" readonly style="color: var(--c-secret); font-weight: bold; background: var(--bg-box); cursor: default;">
+            </div>
+        </div>
+
+        <!-- NEW: AURA TARGET TIMER CONTROLS -->
+        <div class="input-grid" id="aura-timer-controls" style="display: none; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+            <div class="input-group">
+                <label>Current Opens</label>
+                <div class="input-row">
+                    <input type="number" id="aura-curr-num" value="0">
+                    <select id="aura-curr-suf"></select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Target Opens</label>
+                <div class="input-row">
+                    <input type="number" id="aura-target-num" value="0">
+                    <select id="aura-target-suf"></select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Time Required</label>
+                <input type="text" id="aura-time-result" readonly style="color: var(--c-rare); font-weight: bold; background: var(--bg-box); cursor: default;">
             </div>
         </div>
         
@@ -267,7 +275,7 @@ const SUFFIXES = [
     {v: 1e108, s: 'Qitg'}, {v: 1e105, s: 'Qatg'}, {v: 1e102,  s: 'Tt'},   {v: 1e99,  s: 'Dtg'},
     {v: 1e96,  s: 'Utg'},  {v: 1e93,  s: 'Tr'},   {v: 1e90,  s: 'Novg'}, {v: 1e87,  s: 'Ocvg'},
     {v: 1e84,  s: 'Spvg'}, {v: 1e81,  s: 'Sxvg'}, {v: 1e78,  s: 'Qivg'}, {v: 1e75,  s: 'Qavg'},
-    {v: 1e72,  s: 'Tvg'},  {v: 1e69,  s: 'Dvg'},  {v: 1e66,  s: 'Uvg'},  {v: 1e63,  s: 'Vg'},  
+    {v: 1e72,  s: 'Tvg'},  {v: 1e69,  s: 'Dvg'},  {v: 1e66,  s: 'Uvg'},  {v: 1e63,  s: 'Vg'}, 
     {v: 1e60,  s: 'Nd'},   {v: 1e57,  s: 'Ocd'},  {v: 1e54,  s: 'Spd'},  {v: 1e51,  s: 'Sxd'},  
     {v: 1e48,  s: 'Qui'},  {v: 1e45,  s: 'Qua'},  {v: 1e42,  s: 'Td'},   {v: 1e39,  s: 'Dd'},   
     {v: 1e36,  s: 'Ud'},   {v: 1e33,  s: 'Dc'},   {v: 1e30,  s: 'N'},    {v: 1e27,  s: 'Oc'},   
@@ -436,29 +444,33 @@ const DATA = {
     ]
 };
 
-let currentTab = "XP Calculator";
+let currentTab = "Auras";
 let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || {};
 
 function initDropdowns() {
     const bSuf = document.getElementById("bulk-suf");
     const lSuf = document.getElementById("luck-suf");
-    const aSuf = document.getElementById("auras-open-suf");
+    const acSuf = document.getElementById("aura-curr-suf");
+    const atSuf = document.getElementById("aura-target-suf");
     
     const reversedSuffixes = [...SUFFIXES].reverse();
     
     bSuf.innerHTML = "";
     lSuf.innerHTML = "";
-    aSuf.innerHTML = "";
+    acSuf.innerHTML = "";
+    atSuf.innerHTML = "";
     
     reversedSuffixes.forEach(x => {
         bSuf.appendChild(new Option(x.s, x.s));
         lSuf.appendChild(new Option(x.s, x.s));
-        aSuf.appendChild(new Option(x.s, x.s));
+        acSuf.appendChild(new Option(x.s, x.s));
+        atSuf.appendChild(new Option(x.s, x.s));
     });
     
     bSuf.value = "None";
     lSuf.value = "None";
-    aSuf.value = "None";
+    acSuf.value = "None";
+    atSuf.value = "None";
 }
 
 function renderTabs() {
@@ -487,11 +499,8 @@ function updateLabels() {
     document.getElementById("lbl-luck").innerText = `${prefix} Luck`;
     
     if (isAuraSystem(currentTab)) {
-        document.getElementById("group-clone").style.display = "none";
-        document.getElementById("group-auras-open").style.display = "flex";
+        document.getElementById("lbl-clone").innerText = "Aura Opens";
     } else {
-        document.getElementById("group-clone").style.display = "flex";
-        document.getElementById("group-auras-open").style.display = "none";
         document.getElementById("lbl-clone").innerText = `${prefix} Clone`;
     }
     
@@ -509,17 +518,13 @@ function loadTabInputs() {
         "bulk-suf": "None",
         "luck-num": (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "2.5",
         "luck-suf": "None",
-        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3",
-        "auras-open-num": "0",
-        "auras-open-suf": "None"
+        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3"
     };
 
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf'].forEach(id => {
+    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
         const el = document.getElementById(id);
-        if(el) {
-            const storedVal = localStorage.getItem(`slayer_v3_${systemKey}_${id}`);
-            el.value = storedVal !== null ? storedVal : defaults[id];
-        }
+        const storedVal = localStorage.getItem(`slayer_v3_${systemKey}_${id}`);
+        el.value = storedVal !== null ? storedVal : defaults[id];
     });
 }
 
@@ -529,9 +534,9 @@ function saveTabInputs() {
     if (isCaveSystem(currentTab)) systemKey = "cave";
     if (isAuraSystem(currentTab)) systemKey = "aura";
     
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf'].forEach(id => {
+    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
         const el = document.getElementById(id);
-        if(el) localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
+        localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
     });
 }
 
@@ -541,6 +546,7 @@ function setTab(tab) {
     
     if (tab === "XP Calculator") {
         document.getElementById("rune-controls").style.display = "none";
+        document.getElementById("aura-timer-controls").style.display = "none";
         document.getElementById("xp-controls").style.display = "grid";
         document.getElementById("error-box").style.display = "none";
         document.getElementById("global-stats-bar").style.display = "none";
@@ -552,6 +558,13 @@ function setTab(tab) {
         document.getElementById("xp-controls").style.display = "none";
         document.getElementById("cards-container").style.display = "grid";
         document.getElementById("xp-message").style.display = "none";
+        
+        if (isAuraSystem(tab)) {
+            document.getElementById("aura-timer-controls").style.display = "grid";
+        } else {
+            document.getElementById("aura-timer-controls").style.display = "none";
+        }
+
         updateLabels();
         loadTabInputs();
         calculate();
@@ -583,11 +596,32 @@ function calculateXP() {
     document.getElementById("xp-result").value = formatNum(xp);
 }
 
+function calculateAuraTimer(totalPerSec) {
+    if (!isAuraSystem(currentTab)) return;
+
+    const currNum = parseFloat(document.getElementById("aura-curr-num").value) || 0;
+    const currMult = getMultiplier(document.getElementById("aura-curr-suf").value);
+    const current = currNum * currMult;
+
+    const targetNum = parseFloat(document.getElementById("aura-target-num").value) || 0;
+    const targetMult = getMultiplier(document.getElementById("aura-target-suf").value);
+    const target = targetNum * targetMult;
+
+    if (target <= current) {
+        document.getElementById("aura-time-result").value = "0s (Done)";
+        return;
+    }
+
+    // Er rechnet Ziel minus Aktuell, teilt es durch Auras/sec
+    const remaining = target - current;
+    const timeSec = totalPerSec > 0 ? (remaining / totalPerSec) : 0;
+    
+    document.getElementById("aura-time-result").value = formatTime(timeSec);
+}
+
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
-    
-    let clone = parseFloat(document.getElementById("clone").value) || 1;
-    if (isAuraSystem(currentTab)) clone = 1; 
+    const clone = parseFloat(document.getElementById("clone").value) || 1;
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
@@ -613,95 +647,83 @@ function calculate() {
     const bulkMult = getMultiplier(document.getElementById("bulk-suf").value);
     const bulk = bulkNum * bulkMult;
 
-    const luckNum = parseFloat(document.getElementById("luck-num").value) || 0;
+    const luckNum = parseFloat(document.getElementById("luck-num").value) || 1;
     const luckMult = getMultiplier(document.getElementById("luck-suf").value);
     const luck = luckNum * luckMult;
 
-    const aurasOpenNum = parseFloat(document.getElementById("auras-open-num").value) || 0;
-    const aurasOpenMult = getMultiplier(document.getElementById("auras-open-suf").value);
-    const aurasOpen = aurasOpenNum * aurasOpenMult;
-
-    const rollsPerSec = speed > 0 ? (1 / speed) * clone : 0;
-    const itemsPerSec = rollsPerSec * bulk;
+    // Berechnungen der Rate
+    const rollsPerSec = speed > 0 ? 1 / speed : 0;
+    const totalPerSec = rollsPerSec * bulk * clone;
 
     document.getElementById("out-rolls").innerText = formatNum(rollsPerSec);
-    document.getElementById("out-runs").innerText = formatNum(itemsPerSec);
+    document.getElementById("out-runs").innerText = formatNum(totalPerSec);
 
+    // Ziel Timer aktualisieren (nur im Aura Tab)
+    calculateAuraTimer(totalPerSec);
+
+    // Karten generieren
     const items = DATA[currentTab] || [];
-    const hidden = hiddenRunes[currentTab] || {};
-
-    cardsCont.innerHTML = items.map(item => {
-        const isHidden = hidden[item.r];
-        const baseChanceVal = parseStringValue(item.c);
+    let html = "";
+    
+    items.forEach(item => {
+        const isHidden = hiddenRunes[currentTab] && hiddenRunes[currentTab][item.r];
+        const cardClass = isHidden ? "card hidden-rune" : "card";
         
-        let statsHTML = "";
+        const chance = parseStringValue(item.c);
+        const effectiveChance = chance / luck;
+        const dropsPerSec = totalPerSec / effectiveChance;
+        const timePerDrop = dropsPerSec > 0 ? 1 / dropsPerSec : Infinity;
 
-        if (isAuraSystem(currentTab)) {
-            const pityTarget = baseChanceVal !== "Unknown" ? baseChanceVal * 1.1 : "Unknown";
-            const remaining = (pityTarget !== "Unknown") ? Math.max(0, pityTarget - aurasOpen) : "Unknown";
-            const sec = (itemsPerSec > 0 && remaining !== "Unknown") ? remaining / itemsPerSec : 0;
-            const timeText = formatTime(sec);
-
-            statsHTML = `
-                <div class="stat-box ${item.t}">
+        let statsHtml = "";
+        if (item.s && !isHidden) {
+            statsHtml = '<div class="aura-stats-grid" style="display:flex; flex-direction:column; gap:10px;">';
+            item.s.forEach(stat => {
+                statsHtml += `<div class="stat-box ${item.t}">
+                    <div class="stat-head"><span>${stat.n}</span><span class="stat-val">${stat.v}</span></div>
                     <div class="stat-details">
-                        <div>Pity Cap (1.1x): <span>${formatNum(pityTarget)}</span></div>
-                        <div>Remaining Pity: <span>${formatNum(remaining)}</span></div>
-                        <div>Time: <span class="time-highlight">${timeText}</span></div>
+                        <div>Normal: <span>${stat.nd}</span></div>
                     </div>
-                </div>
-            `;
-        } else if (item.s) {
-            statsHTML = item.s.map(stat => {
-                const ndVal = parseStringValue(stat.nd);
-                const sec = itemsPerSec > 0 ? ndVal / itemsPerSec : 0;
-                return `
-                    <div class="stat-box ${item.t}">
-                        <div class="stat-head">
-                            <span>${stat.n}</span>
-                            <span class="stat-val">${stat.v}</span>
-                        </div>
-                        <div class="stat-details">
-                            <div>Needed: <span>${stat.nd}</span></div>
-                            <div>Time: <span class="time-highlight">${formatTime(sec)}</span></div>
-                        </div>
-                    </div>
-                `;
-            }).join("");
+                </div>`;
+            });
+            statsHtml += '</div>';
         }
 
-        return `
-            <div class="card ${isHidden ? 'hidden-rune' : ''}">
-                <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '➕' : '➖'}</div>
-                <div class="card-header">
-                    <div class="card-title ${item.t}">${item.r}</div>
-                    <div class="card-chance">Base Chance: 1 in ${item.c}</div>
-                </div>
-                ${statsHTML}
+        html += `<div class="${cardClass}">
+            <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '👁️' : '🙈'}</div>
+            <div class="card-header ${item.t}">
+                <div class="card-title">${item.r}</div>
+                <div class="card-chance">1 in ${formatNum(chance)}</div>
             </div>
-        `;
-    }).join("");
+            ${!isHidden ? `
+            <div style="font-size: 14px; text-align: center; margin-bottom: 10px;">
+                <div>Drops/sec: <span style="color: #fff; font-weight: bold;">${formatNum(dropsPerSec)}</span></div>
+                <div>Est. Time: <span class="time-highlight">${formatTime(timePerDrop)}</span></div>
+            </div>
+            ` : ''}
+            ${statsHtml}
+        </div>`;
+    });
+    
+    cardsCont.innerHTML = html;
 }
 
-['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf', 'xp-start', 'xp-end'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.addEventListener('input', () => {
-            saveTabInputs();
-            if (currentTab === "XP Calculator") calculateXP();
-            else calculate();
-        });
-        el.addEventListener('change', () => {
-            saveTabInputs();
-            if (currentTab === "XP Calculator") calculateXP();
-            else calculate();
-        });
-    }
-});
+window.onload = () => {
+    initDropdowns();
+    renderTabs();
+    setTab("Auras");
 
-initDropdowns();
-renderTabs();
-setTab("XP Calculator");
+    // Event Listener für alle Input Änderungen
+    document.querySelectorAll('input, select').forEach(el => {
+        el.addEventListener('input', () => {
+            if (currentTab === "XP Calculator") {
+                calculateXP();
+            } else {
+                saveTabInputs();
+                calculate();
+            }
+        });
+    });
+};
 </script>
 </body>
 </html>
