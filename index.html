@@ -53,6 +53,13 @@
         gap: 15px;
     }
 
+    .section-divider {
+        grid-column: 1 / -1;
+        height: 1px;
+        background: var(--border);
+        margin: 10px 0;
+    }
+
     .input-group { display: flex; flex-direction: column; gap: 5px; }
     .input-group label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
     
@@ -71,6 +78,9 @@
     input:focus, select:focus { border-color: var(--c-rare); }
     input { flex: 1; min-width: 0; }
     select { cursor: pointer; }
+    
+    .readonly-val { background: var(--bg-box); font-weight: bold; cursor: default; border-color: var(--border); }
+    .readonly-val:focus { border-color: var(--border); }
 
     .error-box {
         background: #2a1414;
@@ -219,20 +229,15 @@
         </div>
 
         <div class="input-grid" id="xp-controls" style="display: none;">
+            <!-- XP & Leveling Section -->
             <div class="input-group">
                 <label>Current Level (S)</label>
-                <input type="number" id="xp-start" value="1" min="1">
+                <input type="number" id="xp-start" value="1126" min="1">
             </div>
             <div class="input-group">
                 <label>Target Level (E)</label>
-                <input type="number" id="xp-end" value="10" min="2">
+                <input type="number" id="xp-end" value="1140" min="2">
             </div>
-            <div class="input-group">
-                <label>Required XP</label>
-                <input type="text" id="xp-result" readonly style="color: var(--c-secret); font-weight: bold; background: var(--bg-box); cursor: default;">
-            </div>
-
-            <!-- Neue Calc Inputs -->
             <div class="input-group">
                 <label>XP per Hit (Kill)</label>
                 <div class="input-row">
@@ -241,6 +246,18 @@
                 </div>
             </div>
             <div class="input-group">
+                <label>Required XP</label>
+                <input type="text" id="xp-req-result" readonly class="readonly-val" style="color: var(--c-secret);">
+            </div>
+            <div class="input-group">
+                <label>Time to Target Level</label>
+                <input type="text" id="xp-time-result" readonly class="readonly-val" style="color: var(--c-rare);">
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Spirit Orbs Section -->
+            <div class="input-group">
                 <label>Spirit Orbs per Kill</label>
                 <div class="input-row">
                     <input type="number" id="orbs-per-kill-num" value="10">
@@ -248,25 +265,39 @@
                 </div>
             </div>
             <div class="input-group">
+                <label>Targeted Spirit Orbs</label>
+                <div class="input-row">
+                    <input type="number" id="target-orbs-num" value="1">
+                    <select id="target-orbs-suf"></select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Time to Hit Targeted Orbs</label>
+                <input type="text" id="orbs-time-result" readonly class="readonly-val" style="color: var(--c-legendary);">
+            </div>
+            
+            <div style="grid-column: span 2;"></div> <!-- Empty space for alignment -->
+
+            <div class="section-divider"></div>
+
+            <!-- Aura Tokens Section -->
+            <div class="input-group">
                 <label>Aura Tokens per Kill</label>
                 <div class="input-row">
                     <input type="number" id="tokens-per-kill-num" value="5">
                     <select id="tokens-per-kill-suf"></select>
                 </div>
             </div>
-
-            <!-- Neue Calc Outputs -->
             <div class="input-group">
-                <label>Time to Target Level</label>
-                <input type="text" id="xp-time-result" readonly style="color: var(--c-rare); font-weight: bold; background: var(--bg-box); cursor: default;">
+                <label>Targeted Aura Tokens</label>
+                <div class="input-row">
+                    <input type="number" id="target-tokens-num" value="1">
+                    <select id="target-tokens-suf"></select>
+                </div>
             </div>
             <div class="input-group">
-                <label>Total Spirit Orbs</label>
-                <input type="text" id="xp-orbs-result" readonly style="color: var(--c-legendary); font-weight: bold; background: var(--bg-box); cursor: default;">
-            </div>
-            <div class="input-group">
-                <label>Total Aura Tokens</label>
-                <input type="text" id="xp-tokens-result" readonly style="color: var(--c-mythical); font-weight: bold; background: var(--bg-box); cursor: default;">
+                <label>Time to Get Targeted Tokens</label>
+                <input type="text" id="tokens-time-result" readonly class="readonly-val" style="color: var(--c-mythical);">
             </div>
         </div>
         
@@ -282,7 +313,7 @@
         <div class="tabs" id="tabs-container"></div>
         <div class="cards-grid" id="cards-container"></div>
         <div id="xp-message" style="display:none; text-align:center; padding: 40px; color: var(--text-muted); font-size: 16px; font-weight: bold;">
-            Configure your levels and drop rates above to calculate XP and resource gains.
+            Configure your target values above to calculate time to completion.
         </div>
     </div>
 </div>
@@ -472,35 +503,19 @@ function initDropdowns() {
 
     const xpHitSuf = document.getElementById("xp-per-hit-suf");
     const orbsSuf = document.getElementById("orbs-per-kill-suf");
+    const targetOrbsSuf = document.getElementById("target-orbs-suf");
     const tokensSuf = document.getElementById("tokens-per-kill-suf");
+    const targetTokensSuf = document.getElementById("target-tokens-suf");
     
     const reversedSuffixes = [...SUFFIXES].reverse();
     
-    bSuf.innerHTML = "";
-    lSuf.innerHTML = "";
-    cSuf.innerHTML = "";
-
-    xpHitSuf.innerHTML = "";
-    orbsSuf.innerHTML = "";
-    tokensSuf.innerHTML = "";
-    
-    reversedSuffixes.forEach(x => {
-        bSuf.appendChild(new Option(x.s, x.s));
-        lSuf.appendChild(new Option(x.s, x.s));
-        cSuf.appendChild(new Option(x.s, x.s));
-
-        xpHitSuf.appendChild(new Option(x.s, x.s));
-        orbsSuf.appendChild(new Option(x.s, x.s));
-        tokensSuf.appendChild(new Option(x.s, x.s));
+    [bSuf, lSuf, cSuf, xpHitSuf, orbsSuf, targetOrbsSuf, tokensSuf, targetTokensSuf].forEach(el => {
+        el.innerHTML = "";
+        reversedSuffixes.forEach(x => {
+            el.appendChild(new Option(x.s, x.s));
+        });
+        el.value = "None";
     });
-    
-    bSuf.value = "None";
-    lSuf.value = "None";
-    cSuf.value = "None";
-
-    xpHitSuf.value = "None";
-    orbsSuf.value = "None";
-    tokensSuf.value = "None";
 }
 
 function renderTabs() {
@@ -611,48 +626,44 @@ function getMultiplier(suffixStr) {
 }
 
 function calculateXP() {
+    const killsPerSec = 4; // Feste Annahme: 1 Kill alle 0.25s
+    
+    // --- 1. Level & XP Berechnung ---
     const S = parseFloat(document.getElementById("xp-start").value) || 0;
     const E = parseFloat(document.getElementById("xp-end").value) || 0;
+    const xpPerHit = (parseFloat(document.getElementById("xp-per-hit-num").value) || 0) * getMultiplier(document.getElementById("xp-per-hit-suf").value);
     
-    if (E <= S) {
-        document.getElementById("xp-result").value = "0 (E > S!)";
-        document.getElementById("xp-time-result").value = "N/A";
-        document.getElementById("xp-orbs-result").value = "0";
-        document.getElementById("xp-tokens-result").value = "0";
-        return;
-    }
-    
-    const xpNeeded = 500 * (Math.pow(1.2, E) - Math.pow(1.2, S));
-    document.getElementById("xp-result").value = formatNum(xpNeeded);
-
-    // XP & Ressource Kalkulation
-    const xpNum = parseFloat(document.getElementById("xp-per-hit-num").value) || 0;
-    const xpMult = getMultiplier(document.getElementById("xp-per-hit-suf").value);
-    const xpPerKill = xpNum * xpMult;
-
-    const orbsNum = parseFloat(document.getElementById("orbs-per-kill-num").value) || 0;
-    const orbsMult = getMultiplier(document.getElementById("orbs-per-kill-suf").value);
-    const orbsPerKill = orbsNum * orbsMult;
-
-    const tokensNum = parseFloat(document.getElementById("tokens-per-kill-num").value) || 0;
-    const tokensMult = getMultiplier(document.getElementById("tokens-per-kill-suf").value);
-    const tokensPerKill = tokensNum * tokensMult;
-
-    // Feste Annahme: 1 Kill alle 0.25 Sekunden = 4 Kills pro Sekunde
-    const killsPerSec = 4;
-    const xpPerSec = xpPerKill * killsPerSec;
-
-    if (xpPerSec > 0) {
-        const timeSec = xpNeeded / xpPerSec;
-        document.getElementById("xp-time-result").value = formatTime(timeSec);
-        
-        const totalKills = timeSec * killsPerSec;
-        document.getElementById("xp-orbs-result").value = formatNum(totalKills * orbsPerKill);
-        document.getElementById("xp-tokens-result").value = formatNum(totalKills * tokensPerKill);
+    if (E > S) {
+        const xpNeeded = 500 * (Math.pow(1.2, E) - Math.pow(1.2, S));
+        document.getElementById("xp-req-result").value = formatNum(xpNeeded);
+        if (xpPerHit > 0) {
+            document.getElementById("xp-time-result").value = formatTime(xpNeeded / (xpPerHit * killsPerSec));
+        } else {
+            document.getElementById("xp-time-result").value = "Infinite";
+        }
     } else {
-        document.getElementById("xp-time-result").value = "Infinite";
-        document.getElementById("xp-orbs-result").value = "0";
-        document.getElementById("xp-tokens-result").value = "0";
+        document.getElementById("xp-req-result").value = "0 (E > S!)";
+        document.getElementById("xp-time-result").value = "N/A";
+    }
+
+    // --- 2. Spirit Orbs Berechnung ---
+    const orbsPerKill = (parseFloat(document.getElementById("orbs-per-kill-num").value) || 0) * getMultiplier(document.getElementById("orbs-per-kill-suf").value);
+    const targetOrbs = (parseFloat(document.getElementById("target-orbs-num").value) || 0) * getMultiplier(document.getElementById("target-orbs-suf").value);
+    
+    if (targetOrbs > 0 && orbsPerKill > 0) {
+        document.getElementById("orbs-time-result").value = formatTime(targetOrbs / (orbsPerKill * killsPerSec));
+    } else {
+        document.getElementById("orbs-time-result").value = "Infinite / N/A";
+    }
+
+    // --- 3. Aura Tokens Berechnung ---
+    const tokensPerKill = (parseFloat(document.getElementById("tokens-per-kill-num").value) || 0) * getMultiplier(document.getElementById("tokens-per-kill-suf").value);
+    const targetTokens = (parseFloat(document.getElementById("target-tokens-num").value) || 0) * getMultiplier(document.getElementById("target-tokens-suf").value);
+    
+    if (targetTokens > 0 && tokensPerKill > 0) {
+        document.getElementById("tokens-time-result").value = formatTime(targetTokens / (tokensPerKill * killsPerSec));
+    } else {
+        document.getElementById("tokens-time-result").value = "Infinite / N/A";
     }
 }
 
@@ -660,7 +671,7 @@ function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
     const cloneNum = parseFloat(document.getElementById("clone").value) || 1;
     const cloneMult = getMultiplier(document.getElementById("clone-suf").value);
-    const currentOpens = cloneNum * cloneMult; // Current opens from input field
+    const currentOpens = cloneNum * cloneMult;
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
@@ -752,7 +763,6 @@ function calculate() {
             const progress = currentOpens % pityRolls;
             const remainingOpens = progress === 0 ? pityRolls : pityRolls - progress;
             
-            // Fixed Pity Timer: Depends on true opens/sec (runsPerSec), not expected random drops
             const timeSec = (!item.isNA && runsPerSec > 0 && remainingOpens > 0) ? (remainingOpens / runsPerSec) : 0;
             const timeStr = (item.isNA || remainingOpens <= 0) ? "0.0s" : formatTime(timeSec);
 
@@ -819,9 +829,15 @@ initDropdowns();
 const inputIds = [
     'speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'clone-suf', 
     'xp-start', 'xp-end', 'xp-per-hit-num', 'xp-per-hit-suf', 
-    'orbs-per-kill-num', 'orbs-per-kill-suf', 'tokens-per-kill-num', 'tokens-per-kill-suf'
+    'orbs-per-kill-num', 'orbs-per-kill-suf', 'target-orbs-num', 'target-orbs-suf',
+    'tokens-per-kill-num', 'tokens-per-kill-suf', 'target-tokens-num', 'target-tokens-suf'
 ];
-const xpInputs = ['xp-start', 'xp-end', 'xp-per-hit-num', 'xp-per-hit-suf', 'orbs-per-kill-num', 'orbs-per-kill-suf', 'tokens-per-kill-num', 'tokens-per-kill-suf'];
+
+const xpInputs = [
+    'xp-start', 'xp-end', 'xp-per-hit-num', 'xp-per-hit-suf', 
+    'orbs-per-kill-num', 'orbs-per-kill-suf', 'target-orbs-num', 'target-orbs-suf',
+    'tokens-per-kill-num', 'tokens-per-kill-suf', 'target-tokens-num', 'target-tokens-suf'
+];
 
 inputIds.forEach(id => {
     const el = document.getElementById(id);
