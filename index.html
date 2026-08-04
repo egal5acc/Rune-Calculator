@@ -151,18 +151,15 @@
 
     .card.hidden-rune { gap: 0; padding-bottom: 10px; }
     .card.hidden-rune .card-header { border-bottom: none; padding-bottom: 0; }
-    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box { display: none !important; }
+    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box, .card.hidden-rune .aura-stats-grid { display: none !important; }
 
     .stat-box {
         background: var(--bg-box);
         border-radius: 8px;
         padding: 12px;
         border-left: 4px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
     }
-    .stat-head { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+    .stat-head { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
     .stat-val { color: var(--c-secret); }
     
     .stat-details {
@@ -196,36 +193,36 @@
         <div class="input-grid" id="rune-controls">
             <div class="input-group">
                 <label id="lbl-speed">Rune Speed (sec)</label>
-                <input type="text" id="speed" value="0.1">
+                <input type="number" id="speed" value="0.1" step="0.01">
             </div>
             <div class="input-group">
                 <label id="lbl-bulk">Rune Bulk</label>
                 <div class="input-row">
-                    <input type="text" id="bulk-num" value="100">
+                    <input type="number" id="bulk-num" value="100">
                     <select id="bulk-suf"></select>
                 </div>
             </div>
             <div class="input-group">
                 <label id="lbl-luck">Rune Luck</label>
                 <div class="input-row">
-                    <input type="text" id="luck-num" value="2.5">
+                    <input type="number" id="luck-num" value="2.5" step="0.1">
                     <select id="luck-suf"></select>
                 </div>
             </div>
             <div class="input-group">
                 <label id="lbl-clone">Rune Clone</label>
-                <input type="text" id="clone" value="3">
+                <input type="number" id="clone" value="3">
             </div>
         </div>
 
         <div class="input-grid" id="xp-controls" style="display: none;">
             <div class="input-group">
                 <label>Current Level (S)</label>
-                <input type="text" id="xp-start" value="1">
+                <input type="number" id="xp-start" value="1" min="1">
             </div>
             <div class="input-group">
                 <label>Target Level (E)</label>
-                <input type="text" id="xp-end" value="10">
+                <input type="number" id="xp-end" value="10" min="2">
             </div>
             <div class="input-group">
                 <label>Required XP</label>
@@ -253,7 +250,7 @@
 <script>
 const SUFFIXES = [
     {v: 1e120, s: 'Notg'}, {v: 1e117, s: 'Octg'}, {v: 1e114, s: 'Sptg'}, {v: 1e111, s: 'Sxtg'},
-    {v: 1e108, s: 'Qitg'}, {v: 1e105, s: 'Qatg'}, {v: 1e102, s: 'Tt'},   {v: 1e99,  s: 'Dtg'},
+    {v: 1e108, s: 'Qitg'}, {v: 1e105, s: 'Qatg'}, {v: 1e102,  s: 'Tt'},   {v: 1e99,  s: 'Dtg'},
     {v: 1e96,  s: 'Utg'},  {v: 1e93,  s: 'Tr'},   {v: 1e90,  s: 'Novg'}, {v: 1e87,  s: 'Ocvg'},
     {v: 1e84,  s: 'Spvg'}, {v: 1e81,  s: 'Sxvg'}, {v: 1e78,  s: 'Qivg'}, {v: 1e75,  s: 'Qavg'},
     {v: 1e72,  s: 'Tvg'},  {v: 1e69,  s: 'Dvg'},  {v: 1e66,  s: 'Uvg'},  {v: 1e63,  s: 'Vg'}, 
@@ -267,7 +264,7 @@ const SUFFIXES = [
 
 function parseStringValue(str) {
     if(!str || str === 'Unknown') return 'Unknown';
-    str = String(str).toLowerCase().trim().replace(',', '.');
+    str = String(str).toLowerCase().replace(/,/g, '').trim();
     const match = str.match(/^([0-9.]+)([a-z]*)$/);
     if (!match) return parseFloat(str) || 'Unknown';
     let val = parseFloat(match[1]);
@@ -336,10 +333,9 @@ const DATA = {
         { r: "Ecliptor", c: "350Td", t: "secret", s: [{n: "Plasma Points", v: "×10", nd: "1.95M"}, {n: "Lava", v: "×6", nd: "5K"}, {n: "Aura Luck", v: "×3", nd: "10K"}] },
         { r: "Eternal Whiteout", c: "30Nd", t: "unknown", s: [{n: "Power", v: "×25", nd: "659K"}, {n: "Icey", v: "×6", nd: "243"}, {n: "Aura Luck", v: "×2", nd: "2.5K"}] },
         { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] },
-        { r: "Hurricane", c: "1SpVg", t: "secret", s: [{n: "Ice", v: "×4", nd: "3"}, {n: "Ore Damage", v: "×15", nd: "100"}, {n: "Cash", v: "×5", nd: "10K"}] },
         { r: "Cosmic", c: "1SpVg", t: "secret", s: [{n: "Power", v: "×250", nd: "498"}, {n: "Spirit Orbs", v: "×15", nd: "14K"}, {n: "Cash", v: "×15", nd: "14K"}] },
-        { r: "Apocalyptic", c: "1SpVg", t: "secret", s: [{n: "Credits", v: "×5", nd: "800"}, {n: "Fish Luck", v: "×25", nd: "6.78K"}, {n: "Player XP", v: "×1750", nd: "155.2K"}] },
-        { r: "Eternal Frost", c: "1SpVg", t: "secret", s: [{n: "Credits", v: "×10", nd: "110K"}, {n: "Fish Luck", v: "×45", nd: "48.7B"}, {n: "Aura Luck", v: "×3", nd: "625"}] }
+        { r: "Apocalyptic", c: "4Utg", t: "secret", s: [{n: "Credits", v: "×5", nd: "800"}, {n: "Fish Luck", v: "×25", nd: "6.78K"}, {n: "Player XP", v: "×1750", nd: "155.2K"}] },
+        { r: "Eternal Frost", c: "150Dtg", t: "secret", s: [{n: "Credits", v: "×10", nd: "110K"}, {n: "Fish Luck", v: "×45", nd: "48.7B"}, {n: "Aura Luck", v: "×3", nd: "625"}] }
     ],
     Starter: [
         { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
@@ -371,8 +367,7 @@ const DATA = {
         { r: "Searing", c: "97.49T", t: "mythical", s: [{n: "Magma", v: "×25", nd: "448B"}, {n: "Golden Points", v: "+12", nd: "60"}, {n: "Rune Luck", v: "×3", nd: "80"}] },
         { r: "Volcanic", c: "49.9Qa", t: "secret", s: [{n: "Power", v: "×15", nd: "16.4K"}, {n: "Lava", v: "×5", nd: "537"}, {n: "Magma", v: "×322", nd: "322"}] },
         { r: "Worldflare", c: "9.999Sp", t: "unknown", s: [{n: "Plasma Points", v: "×5", nd: "810K"}, {n: "Player XP", v: "×5", nd: "256"}, {n: "Magma", v: "×10", nd: "250"}] },
-        { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] },
-        { r: "Apocalyptic", c: "4Utg", t: "secret", s: [{n: "Credits", v: "×5", nd: "800"}, {n: "Fish Luck", v: "×25", nd: "6.78K"}, {n: "Player XP", v: "×1750", nd: "155.2K"}] }
+        { r: "Infernal Sigil", c: "124.9Dd", t: "celestial", s: [{n: "Power", v: "×45", nd: "1.53K"}, {n: "Player XP", v: "×10", nd: "18K"}, {n: "Rune Luck", v: "×9", nd: "111"}] }
     ],
     Plasma: [
         { r: "Plasmatic", c: "1.00", t: "uncommon", s: [{n: "Plasma Points", v: "+5", nd: "5B"}, {n: "Power", v: "+15", nd: "576B"}] },
@@ -403,9 +398,13 @@ const DATA = {
     ],
     "Cave Hidden": [
         { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
+        { r: "Geode", c: "2T", t: "secret", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
+        { r: "Glowstone", c: "150T", t: "unknown", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
+        { r: "Moonstone", c: "100Qa", t: "celestial", s: [{n: "Boost", v: "Unknown", nd: "Unknown"}] },
+        { r: "Bedrock", c: "30B", t: "mythical", s: [{n: "Cash", v: "×30", nd: "646"}, {n: "Shards", v: "×100", nd: "99"}, {n: "Aura Luck", v: "×3", nd: "4"}] },
         { r: "Geode", c: "2t", t: "secret", s: [{n: "Anti Matter", v: "×4", nd: "40.2"}, {n: "Rune Bulk", v: "×45", nd: "88"}, {n: "Plasma Points", v: "×4M", nd: "192"}] },
         { r: "Glowstone", c: "150t", t: "secret", s: [{n: "Power", v: "×256", nd: "16"}, {n: "Cash", v: "×100", nd: "990"}, {n: "C Rune Luck", v: "×2.25", nd: "25"}] },
-        { r: "Moonstone", c: "100Qa", t: "secret", s: [{n: "Shards", v: "×250", nd: "249"}, {n: "Ore Gain", v: "×5", nd: "625"}, {n: "Cash", v: "×50", nd: "384K"}] },
+        { r: "Moonstone", c: "10Qa", t: "secret", s: [{n: "Shards", v: "×250", nd: "249"}, {n: "Ore Gain", v: "×5", nd: "625"}, {n: "Cash", v: "×50", nd: "384K"}] },
         { r: "Subterra", c: "150Qi", t: "secret", s: [{n: "Power", v: "×1M", nd: "1.2K"}, {n: "Ore Gain", v: "×5", nd: "4"}, {n: "Cash", v: "×100", nd: "48"}] }
     ],
     "Cave Rune": [
@@ -474,6 +473,7 @@ function updateLabels() {
     document.getElementById("lbl-luck").innerText = `${prefix} Luck`;
     document.getElementById("lbl-clone").innerText = `${prefix} Clone`;
     
+    // Kleines Detail: Bei Auren / Cave nennt man es meistens einfach auch so
     document.getElementById("lbl-out-runs-container").innerHTML = `${prefix}s/sec: <span id="out-runs">0</span>`;
 }
 
@@ -506,7 +506,7 @@ function saveTabInputs() {
     
     ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
+        localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
     });
 }
 
@@ -546,8 +546,8 @@ function getMultiplier(suffixStr) {
 }
 
 function calculateXP() {
-    const S = parseFloat(String(document.getElementById("xp-start").value).replace(',', '.')) || 0;
-    const E = parseFloat(String(document.getElementById("xp-end").value).replace(',', '.')) || 0;
+    const S = parseFloat(document.getElementById("xp-start").value) || 0;
+    const E = parseFloat(document.getElementById("xp-end").value) || 0;
     
     if (E <= S) {
         document.getElementById("xp-result").value = "0 (E must be > S)";
@@ -559,13 +559,14 @@ function calculateXP() {
 }
 
 function calculate() {
-    const speed = parseFloat(String(document.getElementById("speed").value).replace(',', '.')) || 0;
-    const clone = parseFloat(String(document.getElementById("clone").value).replace(',', '.')) || 1;
+    const speed = parseFloat(document.getElementById("speed").value) || 0;
+    const clone = parseFloat(document.getElementById("clone").value) || 1;
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
     const cardsCont = document.getElementById("cards-container");
 
+    // Individuelle Limits und Error-Messages je nach Tab-Typ
     const minSpeed = isAuraSystem(currentTab) ? 0.05 : 0.08;
     let prefix = "Rune";
     if (isAuraSystem(currentTab)) prefix = "Aura";
@@ -582,11 +583,11 @@ function calculate() {
         statsBar.style.display = "flex";
     }
 
-    const bulkNum = parseFloat(String(document.getElementById("bulk-num").value).replace(',', '.')) || 0;
+    const bulkNum = parseFloat(document.getElementById("bulk-num").value) || 0;
     const bulkMult = getMultiplier(document.getElementById("bulk-suf").value);
     const bulk = bulkNum * bulkMult;
 
-    const luckNum = parseFloat(String(document.getElementById("luck-num").value).replace(',', '.')) || 0;
+    const luckNum = parseFloat(document.getElementById("luck-num").value) || 0;
     const luckMult = getMultiplier(document.getElementById("luck-suf").value);
     const luck = luckNum * luckMult;
 
@@ -596,98 +597,139 @@ function calculate() {
     document.getElementById("out-rolls").innerText = formatNum(rollsPerSec);
     document.getElementById("out-runs").innerText = formatNum(runsPerSec);
 
-    saveTabInputs();
+    if (!DATA[currentTab]) return;
 
-    const items = DATA[currentTab] || [];
-    cardsCont.innerHTML = "";
-
-    items.forEach(item => {
-        const baseChance = parseStringValue(item.c);
-        const effectiveChance = (typeof baseChance === 'number') ? Math.max(1, baseChance / luck) : 'Unknown';
+    let runeList = DATA[currentTab].map((rune, index) => {
+        const isHidden = !!(hiddenRunes[currentTab] && hiddenRunes[currentTab][rune.r]);
+        const baseDenom = parseStringValue(rune.c);
+        const currentDenom = baseDenom / luck;
         
-        const timeForOne = (typeof effectiveChance === 'number' && runsPerSec > 0) 
-            ? (effectiveChance / runsPerSec) 
-            : 0;
+        let isNA = (runsPerSec <= 0);
+        const displayDenom = Math.max(currentDenom, 1);
+        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
+        const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
+        const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
 
-        const isHidden = hiddenRunes[currentTab] && hiddenRunes[currentTab][item.r];
+        return {
+            originalData: rune,
+            originalIndex: index,
+            isHidden: isHidden,
+            baseDenom: baseDenom,
+            chanceStr: chanceStr,
+            expStr: expStr,
+            expectedDropsPerSec: expectedDropsPerSec,
+            isNA: isNA
+        };
+    });
 
-        let statsHTML = "";
-        if (item.s && Array.isArray(item.s)) {
-            statsHTML = item.s.map(st => {
-                const reqVal = parseStringValue(st.nd);
-                let timeForReq = "N/A";
-                if (typeof effectiveChance === 'number' && typeof reqVal === 'number' && runsPerSec > 0 && clone > 0) {
-                    const totalRollsNeeded = effectiveChance * reqVal;
-                    const effectivePerSec = runsPerSec * clone;
-                    timeForReq = formatTime(totalRollsNeeded / effectivePerSec);
-                }
+    runeList.sort((a, b) => {
+        if (a.isHidden !== b.isHidden) {
+            return a.isHidden - b.isHidden;
+        }
+        return a.originalIndex - b.originalIndex;
+    });
 
-                return `
-                    <div class="stat-box ${item.t || ''}">
-                        <div class="stat-head">
-                            <span>${st.n}</span>
-                            <span class="stat-val">${st.v}</span>
+    let html = "";
+    runeList.forEach(item => {
+        const rune = item.originalData;
+        const eyeIcon = item.isHidden ? "🙈" : "👁️";
+        const hiddenClass = item.isHidden ? "hidden-rune" : "";
+
+        html += `
+        <div class="card ${hiddenClass}">
+            <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
+            <div class="card-header">
+                <div class="card-title ${rune.t}">${rune.r}</div>
+                <div class="card-chance">Base: 1 in ${formatNum(item.baseDenom)} | Current: ${item.chanceStr}</div>
+            </div>`;
+
+        if (currentTab === "Auras") {
+            const pityBase = item.baseDenom * 1.1;
+            const pityCurrent = Math.max(pityBase / luck, 1);
+            const pityStr = item.isNA ? "N/A" : `1 in ${formatNum(pityCurrent)}`;
+
+            html += `
+            <div class="stat-box ${rune.t}">
+                <div class="stat-head">
+                    <span>Pity Limit</span>
+                </div>
+                <div class="stat-details">
+                    <div>Base Pity: <span>1 in ${formatNum(pityBase)}</span></div>
+                    <div>Current Pity: <span>${pityStr}</span></div>
+                </div>
+            </div>`;
+
+            if (rune.s && rune.s.length > 0) {
+                html += `<div class="aura-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;">`;
+                rune.s.forEach(stat => {
+                    html += `
+                    <div class="stat-box ${rune.t}" style="padding: 6px 10px; border-left-width: 3px;">
+                        <div style="font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted);">${stat.n}</span>
+                            <span class="stat-val" style="font-size: 13px;">${stat.v}</span>
                         </div>
-                        <div class="stat-details">
-                            <div>Req: <span>${formatNum(reqVal)}</span></div>
-                            <div>Time: <span class="time-highlight">${timeForReq}</span></div>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        } else if (isAuraSystem(currentTab)) {
-            let timeStr = formatTime(timeForOne);
-            statsHTML = `
-                <div class="stat-box ${item.t || ''}">
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+        } else if (rune.s) {
+            rune.s.forEach(stat => {
+                const isStatUnknown = (stat.nd === "Unknown");
+                const needVal = isStatUnknown ? "Unknown" : parseStringValue(stat.nd);
+                const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (needVal / item.expectedDropsPerSec) : Infinity;
+                const timeStr = (item.isNA || isStatUnknown || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+                const needDisplay = isStatUnknown ? "Unknown" : formatNum(needVal);
+
+                html += `
+                <div class="stat-box ${rune.t}">
                     <div class="stat-head">
-                        <span>Aura Unlock</span>
-                        <span class="stat-val">1×</span>
+                        <span>${stat.n} <span class="stat-val">${stat.v}</span></span>
                     </div>
                     <div class="stat-details">
-                        <div>Req: <span>1</span></div>
-                        <div>Time: <span class="time-highlight">${timeStr}</span></div>
+                        <div>Need: <span>${needDisplay}</span></div>
+                        <div>Exp/sec: <span>${item.expStr}</span></div>
+                        <div style="grid-column: span 2; margin-top:5px;">
+                            Time to Max: <span class="time-highlight">${timeStr}</span>
+                        </div>
                     </div>
-                </div>
-            `;
+                </div>`;
+            });
         }
 
-        const card = document.createElement("div");
-        card.className = `card ${isHidden ? 'hidden-rune' : ''}`;
-        card.innerHTML = `
-            <span class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">
-                ${isHidden ? '👁️' : '🙈'}
-            </span>
-            <div class="card-header">
-                <div class="card-title ${item.t || ''}">${item.r}</div>
-                <div class="card-chance">1 in ${formatNum(baseChance)} (Eff: 1 in ${formatNum(effectiveChance)})</div>
-            </div>
-            ${statsHTML}
-        `;
-        cardsCont.appendChild(card);
+        html += `</div>`;
     });
+
+    cardsCont.innerHTML = html;
 }
 
-window.onload = function() {
-    initDropdowns();
+initDropdowns();
+
+const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
+inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (id === 'xp-start' || id === 'xp-end') {
+        if(localStorage.getItem('slayer_v3_'+id)) el.value = localStorage.getItem('slayer_v3_'+id);
+    }
     
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', calculate);
-            el.addEventListener('change', calculate);
+    const handler = () => {
+        if (id === 'xp-start' || id === 'xp-end') {
+            localStorage.setItem('slayer_v3_'+id, el.value);
+            calculateXP();
+        } else {
+            saveTabInputs();
+            calculate();
         }
-    });
+    };
+    
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+});
 
-    ['xp-start', 'xp-end'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', calculateXP);
-            el.addEventListener('change', calculateXP);
-        }
-    });
-
-    setTab("Starter");
-};
+loadTabInputs();
+renderTabs();
+setTab("XP Calculator");
 </script>
 </body>
 </html>
