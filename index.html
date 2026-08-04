@@ -663,7 +663,9 @@ function calculate() {
 
             // Target opens is pityCurrent (or baseDenom for other calculations if needed, but for pity limit it's pityCurrent)
             const targetOpens = pityCurrent;
-            const remainingOpens = Math.max(targetOpens - currentOpens, 0);
+            const pityRolls = Math.ceil(pityCurrent);
+            const progress = currentOpens % pityRolls;
+            const remainingOpens = progress === 0 ? pityRolls : pityRolls - progress;
             const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && remainingOpens > 0) ? (remainingOpens / item.expectedDropsPerSec) : 0;
             const timeStr = (item.isNA || remainingOpens <= 0) ? "0.0s" : formatTime(timeSec);
 
