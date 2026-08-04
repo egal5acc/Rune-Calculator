@@ -159,8 +159,15 @@
         padding: 12px;
         border-left: 4px solid var(--border);
     }
-    .stat-head { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
-    .stat-val { color: var(--c-secret); }
+    .stat-head { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        font-weight: bold; 
+        margin-bottom: 8px; 
+        font-size: 14px; 
+    }
+    .stat-val { color: var(--c-secret); font-weight: bold; }
     
     .stat-details {
         display: grid;
@@ -209,12 +216,10 @@
                     <select id="luck-suf"></select>
                 </div>
             </div>
-            <!-- Standard Clone Feld -->
             <div class="input-group" id="group-clone">
                 <label id="lbl-clone">Rune Clone</label>
                 <input type="number" id="clone" value="3">
             </div>
-            <!-- Spezielles Auras Open Feld (mit Suffix) -->
             <div class="input-group" id="group-auras-open" style="display: none;">
                 <label>Auras Open</label>
                 <div class="input-row">
@@ -581,7 +586,6 @@ function calculateXP() {
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
     
-    // Clone wird bei Auren auf 1 gesetzt, da Auren nicht geklont werden
     let clone = parseFloat(document.getElementById("clone").value) || 1;
     if (isAuraSystem(currentTab)) clone = 1; 
     
@@ -628,14 +632,15 @@ function calculate() {
 
     cardsCont.innerHTML = items.map(item => {
         const isHidden = hidden[item.r];
-        const chanceVal = parseStringValue(item.c);
+        const baseChanceVal = parseStringValue(item.c);
         
         let statsHTML = "";
 
         if (isAuraSystem(currentTab)) {
-            // Auras Pity Calculation
-            const remaining = Math.max(0, chanceVal - aurasOpen);
-            const sec = itemsPerSec > 0 ? remaining / itemsPerSec : 0;
+            // Pity Berechnung: 1.1x der Base Chance
+            const pityTarget = baseChanceVal !== "Unknown" ? baseChanceVal * 1.1 : "Unknown";
+            const remaining = (pityTarget !== "Unknown") ? Math.max(0, pityTarget - aurasOpen) : "Unknown";
+            const sec = (itemsPerSec > 0 && remaining !== "Unknown") ? remaining / itemsPerSec : 0;
             const timeText = formatTime(sec);
 
             statsHTML = `
@@ -645,7 +650,7 @@ function calculate() {
                         <span class="stat-val">${formatNum(remaining)}</span>
                     </div>
                     <div class="stat-details">
-                        <div>Base Pity: <span>${item.c}</span></div>
+                        <div>Pity Cap (1.1x): <span>${formatNum(pityTarget)}</span></div>
                         <div>Time: <span class="time-highlight">${timeText}</span></div>
                     </div>
                 </div>
@@ -674,7 +679,7 @@ function calculate() {
                 <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${item.r}')">${isHidden ? '➕' : '➖'}</div>
                 <div class="card-header">
                     <div class="card-title ${item.t}">${item.r}</div>
-                    <div class="card-chance">Chance: 1 in ${item.c}</div>
+                    <div class="card-chance">Base Chance: 1 in ${item.c}</div>
                 </div>
                 ${statsHTML}
             </div>
