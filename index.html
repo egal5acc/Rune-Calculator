@@ -209,9 +209,18 @@
                     <select id="luck-suf"></select>
                 </div>
             </div>
-            <div class="input-group">
+            <!-- Standard Clone Feld -->
+            <div class="input-group" id="group-clone">
                 <label id="lbl-clone">Rune Clone</label>
                 <input type="number" id="clone" value="3">
+            </div>
+            <!-- Spezielles Auras Open Feld (mit Suffix) -->
+            <div class="input-group" id="group-auras-open" style="display: none;">
+                <label>Auras Open</label>
+                <div class="input-row">
+                    <input type="number" id="auras-open-num" value="0">
+                    <select id="auras-open-suf"></select>
+                </div>
             </div>
         </div>
 
@@ -428,23 +437,23 @@ let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || 
 function initDropdowns() {
     const bSuf = document.getElementById("bulk-suf");
     const lSuf = document.getElementById("luck-suf");
+    const aSuf = document.getElementById("auras-open-suf");
+    
     const reversedSuffixes = [...SUFFIXES].reverse();
     
     bSuf.innerHTML = "";
     lSuf.innerHTML = "";
+    aSuf.innerHTML = "";
     
     reversedSuffixes.forEach(x => {
-        const op1 = document.createElement("option");
-        op1.value = x.s; op1.innerText = x.s;
-        bSuf.appendChild(op1);
-        
-        const op2 = document.createElement("option");
-        op2.value = x.s; op2.innerText = x.s;
-        lSuf.appendChild(op2);
+        bSuf.appendChild(new Option(x.s, x.s));
+        lSuf.appendChild(new Option(x.s, x.s));
+        aSuf.appendChild(new Option(x.s, x.s));
     });
     
     bSuf.value = "None";
     lSuf.value = "None";
+    aSuf.value = "None";
 }
 
 function renderTabs() {
@@ -472,10 +481,12 @@ function updateLabels() {
     document.getElementById("lbl-bulk").innerText = `${prefix} Bulk`;
     document.getElementById("lbl-luck").innerText = `${prefix} Luck`;
     
-    // Umbenennung zu Auras Open im Auras-Tab
     if (isAuraSystem(currentTab)) {
-        document.getElementById("lbl-clone").innerText = "Auras Open";
+        document.getElementById("group-clone").style.display = "none";
+        document.getElementById("group-auras-open").style.display = "flex";
     } else {
+        document.getElementById("group-clone").style.display = "flex";
+        document.getElementById("group-auras-open").style.display = "none";
         document.getElementById("lbl-clone").innerText = `${prefix} Clone`;
     }
     
@@ -493,13 +504,17 @@ function loadTabInputs() {
         "bulk-suf": "None",
         "luck-num": (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "2.5",
         "luck-suf": "None",
-        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3"
+        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3",
+        "auras-open-num": "0",
+        "auras-open-suf": "None"
     };
 
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
+    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf'].forEach(id => {
         const el = document.getElementById(id);
-        const storedVal = localStorage.getItem(`slayer_v3_${systemKey}_${id}`);
-        el.value = storedVal !== null ? storedVal : defaults[id];
+        if(el) {
+            const storedVal = localStorage.getItem(`slayer_v3_${systemKey}_${id}`);
+            el.value = storedVal !== null ? storedVal : defaults[id];
+        }
     });
 }
 
@@ -509,9 +524,9 @@ function saveTabInputs() {
     if (isCaveSystem(currentTab)) systemKey = "cave";
     if (isAuraSystem(currentTab)) systemKey = "aura";
     
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
+    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf'].forEach(id => {
         const el = document.getElementById(id);
-        localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
+        if(el) localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
     });
 }
 
@@ -565,7 +580,10 @@ function calculateXP() {
 
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
-    const clone = parseFloat(document.getElementById("clone").value) || 1;
+    
+    // Clone wird bei Auren auf 1 gesetzt, da Auren nicht geklont werden
+    let clone = parseFloat(document.getElementById("clone").value) || 1;
+    if (isAuraSystem(currentTab)) clone = 1; 
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
@@ -595,6 +613,10 @@ function calculate() {
     const luckMult = getMultiplier(document.getElementById("luck-suf").value);
     const luck = luckNum * luckMult;
 
+    const aurasOpenNum = parseFloat(document.getElementById("auras-open-num").value) || 0;
+    const aurasOpenMult = getMultiplier(document.getElementById("auras-open-suf").value);
+    const aurasOpen = aurasOpenNum * aurasOpenMult;
+
     const rollsPerSec = speed > 0 ? (1 / speed) * clone : 0;
     const itemsPerSec = rollsPerSec * bulk;
 
@@ -611,20 +633,19 @@ function calculate() {
         let statsHTML = "";
 
         if (isAuraSystem(currentTab)) {
-            // Auras Open Logik: Pity minus bereits geöffnete Auren
-            const aurasOpen = clone; 
+            // Auras Pity Calculation
             const remaining = Math.max(0, chanceVal - aurasOpen);
-            const sec = rollsPerSec > 0 ? remaining / rollsPerSec : 0;
+            const sec = itemsPerSec > 0 ? remaining / itemsPerSec : 0;
             const timeText = formatTime(sec);
 
             statsHTML = `
                 <div class="stat-box ${item.t}">
                     <div class="stat-head">
-                        <span>Pity Progress</span>
-                        <span class="stat-val">${formatNum(remaining)} left</span>
+                        <span>Remaining Pity</span>
+                        <span class="stat-val">${formatNum(remaining)}</span>
                     </div>
                     <div class="stat-details">
-                        <div>Target: <span>${item.c}</span></div>
+                        <div>Base Pity: <span>${item.c}</span></div>
                         <div>Time: <span class="time-highlight">${timeText}</span></div>
                     </div>
                 </div>
@@ -662,7 +683,7 @@ function calculate() {
 }
 
 // Event-Listener für Live-Berechnung und Speicherung
-['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'].forEach(id => {
+['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf', 'xp-start', 'xp-end'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
         el.addEventListener('input', () => {
