@@ -196,36 +196,36 @@
         <div class="input-grid" id="rune-controls">
             <div class="input-group">
                 <label id="lbl-speed">Rune Speed (sec)</label>
-                <input type="number" id="speed" value="0.1" step="0.01">
+                <input type="text" id="speed" value="0.1">
             </div>
             <div class="input-group">
                 <label id="lbl-bulk">Rune Bulk</label>
                 <div class="input-row">
-                    <input type="number" id="bulk-num" value="100">
+                    <input type="text" id="bulk-num" value="100">
                     <select id="bulk-suf"></select>
                 </div>
             </div>
             <div class="input-group">
                 <label id="lbl-luck">Rune Luck</label>
                 <div class="input-row">
-                    <input type="number" id="luck-num" value="2.5" step="0.1">
+                    <input type="text" id="luck-num" value="2.5">
                     <select id="luck-suf"></select>
                 </div>
             </div>
             <div class="input-group">
                 <label id="lbl-clone">Rune Clone</label>
-                <input type="number" id="clone" value="3">
+                <input type="text" id="clone" value="3">
             </div>
         </div>
 
         <div class="input-grid" id="xp-controls" style="display: none;">
             <div class="input-group">
                 <label>Current Level (S)</label>
-                <input type="number" id="xp-start" value="1" min="1">
+                <input type="text" id="xp-start" value="1">
             </div>
             <div class="input-group">
                 <label>Target Level (E)</label>
-                <input type="number" id="xp-end" value="10" min="2">
+                <input type="text" id="xp-end" value="10">
             </div>
             <div class="input-group">
                 <label>Required XP</label>
@@ -267,7 +267,7 @@ const SUFFIXES = [
 
 function parseStringValue(str) {
     if(!str || str === 'Unknown') return 'Unknown';
-    str = String(str).toLowerCase().replace(/,/g, '').trim();
+    str = String(str).toLowerCase().trim().replace(',', '.');
     const match = str.match(/^([0-9.]+)([a-z]*)$/);
     if (!match) return parseFloat(str) || 'Unknown';
     let val = parseFloat(match[1]);
@@ -546,8 +546,8 @@ function getMultiplier(suffixStr) {
 }
 
 function calculateXP() {
-    const S = parseFloat(document.getElementById("xp-start").value) || 0;
-    const E = parseFloat(document.getElementById("xp-end").value) || 0;
+    const S = parseFloat(String(document.getElementById("xp-start").value).replace(',', '.')) || 0;
+    const E = parseFloat(String(document.getElementById("xp-end").value).replace(',', '.')) || 0;
     
     if (E <= S) {
         document.getElementById("xp-result").value = "0 (E must be > S)";
@@ -559,8 +559,8 @@ function calculateXP() {
 }
 
 function calculate() {
-    const speed = parseFloat(document.getElementById("speed").value) || 0;
-    const clone = parseFloat(document.getElementById("clone").value) || 1;
+    const speed = parseFloat(String(document.getElementById("speed").value).replace(',', '.')) || 0;
+    const clone = parseFloat(String(document.getElementById("clone").value).replace(',', '.')) || 1;
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
@@ -582,11 +582,11 @@ function calculate() {
         statsBar.style.display = "flex";
     }
 
-    const bulkNum = parseFloat(document.getElementById("bulk-num").value) || 0;
+    const bulkNum = parseFloat(String(document.getElementById("bulk-num").value).replace(',', '.')) || 0;
     const bulkMult = getMultiplier(document.getElementById("bulk-suf").value);
     const bulk = bulkNum * bulkMult;
 
-    const luckNum = parseFloat(document.getElementById("luck-num").value) || 0;
+    const luckNum = parseFloat(String(document.getElementById("luck-num").value).replace(',', '.')) || 0;
     const luckMult = getMultiplier(document.getElementById("luck-suf").value);
     const luck = luckNum * luckMult;
 
@@ -686,7 +686,7 @@ window.onload = function() {
         }
     });
 
-    setTab("XP Calculator");
+    setTab("Starter");
 };
 </script>
 </body>
