@@ -211,7 +211,10 @@
             </div>
             <div class="input-group">
                 <label id="lbl-clone">Rune Clone</label>
-                <input type="number" id="clone" value="3">
+                <div class="input-row" id="clone-row">
+                    <input type="number" id="clone" value="3">
+                    <select id="clone-suf" style="display:none;"></select>
+                </div>
             </div>
         </div>
 
@@ -227,28 +230,6 @@
             <div class="input-group">
                 <label>Required XP</label>
                 <input type="text" id="xp-result" readonly style="color: var(--c-secret); font-weight: bold; background: var(--bg-box); cursor: default;">
-            </div>
-        </div>
-
-        <!-- NEW: AURA TARGET TIMER CONTROLS -->
-        <div class="input-grid" id="aura-timer-controls" style="display: none; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
-            <div class="input-group">
-                <label>Current Opens</label>
-                <div class="input-row">
-                    <input type="number" id="aura-curr-num" value="0">
-                    <select id="aura-curr-suf"></select>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Target Opens</label>
-                <div class="input-row">
-                    <input type="number" id="aura-target-num" value="0">
-                    <select id="aura-target-suf"></select>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Time Required</label>
-                <input type="text" id="aura-time-result" readonly style="color: var(--c-rare); font-weight: bold; background: var(--bg-box); cursor: default;">
             </div>
         </div>
         
@@ -450,27 +431,23 @@ let hiddenRunes = JSON.parse(localStorage.getItem('slayer_v3_hidden_runes')) || 
 function initDropdowns() {
     const bSuf = document.getElementById("bulk-suf");
     const lSuf = document.getElementById("luck-suf");
-    const acSuf = document.getElementById("aura-curr-suf");
-    const atSuf = document.getElementById("aura-target-suf");
+    const cSuf = document.getElementById("clone-suf");
     
     const reversedSuffixes = [...SUFFIXES].reverse();
     
     bSuf.innerHTML = "";
     lSuf.innerHTML = "";
-    acSuf.innerHTML = "";
-    atSuf.innerHTML = "";
+    cSuf.innerHTML = "";
     
     reversedSuffixes.forEach(x => {
         bSuf.appendChild(new Option(x.s, x.s));
         lSuf.appendChild(new Option(x.s, x.s));
-        acSuf.appendChild(new Option(x.s, x.s));
-        atSuf.appendChild(new Option(x.s, x.s));
+        cSuf.appendChild(new Option(x.s, x.s));
     });
     
     bSuf.value = "None";
     lSuf.value = "None";
-    acSuf.value = "None";
-    atSuf.value = "None";
+    cSuf.value = "None";
 }
 
 function renderTabs() {
@@ -498,10 +475,13 @@ function updateLabels() {
     document.getElementById("lbl-bulk").innerText = `${prefix} Bulk`;
     document.getElementById("lbl-luck").innerText = `${prefix} Luck`;
     
+    const cloneSufEl = document.getElementById("clone-suf");
     if (isAuraSystem(currentTab)) {
         document.getElementById("lbl-clone").innerText = "Aura Opens";
+        cloneSufEl.style.display = "block";
     } else {
         document.getElementById("lbl-clone").innerText = `${prefix} Clone`;
+        cloneSufEl.style.display = "none";
     }
     
     document.getElementById("lbl-out-runs-container").innerHTML = `${prefix}s/sec: <span id="out-runs">0</span>`;
@@ -518,10 +498,11 @@ function loadTabInputs() {
         "bulk-suf": "None",
         "luck-num": (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "2.5",
         "luck-suf": "None",
-        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3"
+        clone: (isCaveSystem(currentTab) || isAuraSystem(currentTab)) ? "1" : "3",
+        "clone-suf": "None"
     };
 
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
+    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'clone-suf'].forEach(id => {
         const el = document.getElementById(id);
         const storedVal = localStorage.getItem(`slayer_v3_${systemKey}_${id}`);
         el.value = storedVal !== null ? storedVal : defaults[id];
@@ -534,7 +515,7 @@ function saveTabInputs() {
     if (isCaveSystem(currentTab)) systemKey = "cave";
     if (isAuraSystem(currentTab)) systemKey = "aura";
     
-    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone'].forEach(id => {
+    ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'clone-suf'].forEach(id => {
         const el = document.getElementById(id);
         localStorage.setItem(`slayer_v3_${systemKey}_${id}`, el.value);
     });
@@ -546,7 +527,6 @@ function setTab(tab) {
     
     if (tab === "XP Calculator") {
         document.getElementById("rune-controls").style.display = "none";
-        document.getElementById("aura-timer-controls").style.display = "none";
         document.getElementById("xp-controls").style.display = "grid";
         document.getElementById("error-box").style.display = "none";
         document.getElementById("global-stats-bar").style.display = "none";
@@ -558,12 +538,6 @@ function setTab(tab) {
         document.getElementById("xp-controls").style.display = "none";
         document.getElementById("cards-container").style.display = "grid";
         document.getElementById("xp-message").style.display = "none";
-        
-        if (isAuraSystem(tab)) {
-            document.getElementById("aura-timer-controls").style.display = "grid";
-        } else {
-            document.getElementById("aura-timer-controls").style.display = "none";
-        }
 
         updateLabels();
         loadTabInputs();
@@ -598,7 +572,9 @@ function calculateXP() {
 
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
-    const clone = parseFloat(document.getElementById("clone").value) || 1;
+    const cloneNum = parseFloat(document.getElementById("clone").value) || 1;
+    const cloneMult = getMultiplier(document.getElementById("clone-suf").value);
+    const clone = cloneNum * cloneMult;
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
@@ -686,6 +662,10 @@ function calculate() {
             const pityCurrent = Math.max(pityBase / luck, 1);
             const pityStr = item.isNA ? "N/A" : `1 in ${formatNum(pityCurrent)}`;
 
+            const targetOpens = clone; // In Auras tab, 'clone' input acts as Aura Opens
+            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && targetOpens > 0) ? (targetOpens / item.expectedDropsPerSec) : Infinity;
+            const timeStr = (item.isNA || targetOpens <= 0 || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+
             html += `
             <div class="stat-box ${rune.t}">
                 <div class="stat-head">
@@ -694,6 +674,9 @@ function calculate() {
                 <div class="stat-details">
                     <div>Base Pity: <span>1 in ${formatNum(pityBase)}</span></div>
                     <div>Current Pity: <span>${pityStr}</span></div>
+                    <div style="grid-column: span 2; margin-top:5px;">
+                        Time to Target Opens: <span class="time-highlight">${timeStr}</span>
+                    </div>
                 </div>
             </div>`;
 
@@ -742,7 +725,7 @@ function calculate() {
 
 initDropdowns();
 
-const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'xp-start', 'xp-end'];
+const inputIds = ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'clone-suf', 'xp-start', 'xp-end'];
 inputIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
