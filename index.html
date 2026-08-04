@@ -151,7 +151,7 @@
 
     .card.hidden-rune { gap: 0; padding-bottom: 10px; }
     .card.hidden-rune .card-header { border-bottom: none; padding-bottom: 0; }
-    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box, .card.hidden-rune .aura-stats-grid { display: none !important; }
+    .card.hidden-rune .card-chance, .card.hidden-rune .stat-box { display: none !important; }
 
     .stat-box {
         background: var(--bg-box);
@@ -637,7 +637,6 @@ function calculate() {
         let statsHTML = "";
 
         if (isAuraSystem(currentTab)) {
-            // Pity Berechnung: 1.1x der Base Chance
             const pityTarget = baseChanceVal !== "Unknown" ? baseChanceVal * 1.1 : "Unknown";
             const remaining = (pityTarget !== "Unknown") ? Math.max(0, pityTarget - aurasOpen) : "Unknown";
             const sec = (itemsPerSec > 0 && remaining !== "Unknown") ? remaining / itemsPerSec : 0;
@@ -645,12 +644,9 @@ function calculate() {
 
             statsHTML = `
                 <div class="stat-box ${item.t}">
-                    <div class="stat-head">
-                        <span>Remaining Pity</span>
-                        <span class="stat-val">${formatNum(remaining)}</span>
-                    </div>
                     <div class="stat-details">
                         <div>Pity Cap (1.1x): <span>${formatNum(pityTarget)}</span></div>
+                        <div>Remaining Pity: <span>${formatNum(remaining)}</span></div>
                         <div>Time: <span class="time-highlight">${timeText}</span></div>
                     </div>
                 </div>
@@ -687,7 +683,6 @@ function calculate() {
     }).join("");
 }
 
-// Event-Listener für Live-Berechnung und Speicherung
 ['speed', 'bulk-num', 'bulk-suf', 'luck-num', 'luck-suf', 'clone', 'auras-open-num', 'auras-open-suf', 'xp-start', 'xp-end'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -704,7 +699,6 @@ function calculate() {
     }
 });
 
-// Initialisierung beim Start
 initDropdowns();
 renderTabs();
 setTab("XP Calculator");
