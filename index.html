@@ -574,13 +574,12 @@ function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
     const cloneNum = parseFloat(document.getElementById("clone").value) || 1;
     const cloneMult = getMultiplier(document.getElementById("clone-suf").value);
-    const clone = cloneNum * cloneMult;
+    const currentOpens = cloneNum * cloneMult; // Current opens from input field
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
     const cardsCont = document.getElementById("cards-container");
 
-    // Individuelle Limits und Error-Messages je nach Tab-Typ
     const minSpeed = isAuraSystem(currentTab) ? 0.05 : 0.08;
     let prefix = "Rune";
     if (isAuraSystem(currentTab)) prefix = "Aura";
@@ -620,7 +619,7 @@ function calculate() {
         
         let isNA = (runsPerSec <= 0);
         const displayDenom = Math.max(currentDenom, 1);
-        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom) * clone);
+        const expectedDropsPerSec = isNA ? 0 : (runsPerSec * (1 / displayDenom));
         const chanceStr = isNA ? "N/A" : `1 in ${formatNum(displayDenom)}`;
         const expStr = isNA ? "N/A" : formatNum(expectedDropsPerSec);
 
@@ -662,9 +661,11 @@ function calculate() {
             const pityCurrent = Math.max(pityBase / luck, 1);
             const pityStr = item.isNA ? "N/A" : `1 in ${formatNum(pityCurrent)}`;
 
-            const targetOpens = clone; // In Auras tab, 'clone' input acts as Aura Opens
-            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && targetOpens > 0) ? (targetOpens / item.expectedDropsPerSec) : Infinity;
-            const timeStr = (item.isNA || targetOpens <= 0 || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+            // Target opens is pityCurrent (or baseDenom for other calculations if needed, but for pity limit it's pityCurrent)
+            const targetOpens = pityCurrent;
+            const remainingOpens = Math.max(targetOpens - currentOpens, 0);
+            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && remainingOpens > 0) ? (remainingOpens / item.expectedDropsPerSec) : 0;
+            const timeStr = (item.isNA || remainingOpens <= 0) ? "0.0s" : formatTime(timeSec);
 
             html += `
             <div class="stat-box ${rune.t}">
@@ -697,8 +698,9 @@ function calculate() {
             rune.s.forEach(stat => {
                 const isStatUnknown = (stat.nd === "Unknown");
                 const needVal = isStatUnknown ? "Unknown" : parseStringValue(stat.nd);
-                const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (needVal / item.expectedDropsPerSec) : Infinity;
-                const timeStr = (item.isNA || isStatUnknown || timeSec === Infinity) ? "N/A" : formatTime(timeSec);
+                const remainingNeeded = isStatUnknown ? 0 : Math.max(needVal - currentOpens, 0);
+                const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (remainingNeeded / item.expectedDropsPerSec) : 0;
+                const timeStr = (item.isNA || isStatUnknown || remainingNeeded <= 0) ? "0.0s" : formatTime(timeSec);
                 const needDisplay = isStatUnknown ? "Unknown" : formatNum(needVal);
 
                 html += `
