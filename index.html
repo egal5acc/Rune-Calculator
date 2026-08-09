@@ -142,6 +142,11 @@
         gap: 15px;
         position: relative;
     }
+    
+    /* Zwingt die Custom Rune immer an die erste Stelle */
+    .custom-rune-card {
+        order: -1 !important;
+    }
 
     .card-header { text-align: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); padding-right: 30px; }
     .card-title { font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
@@ -777,8 +782,7 @@ function calculate() {
             const timeStr = (item.isNA || remainingNeeded <= 0) ? "0.0s" : formatTime(timeSec);
 
             html += `
-            <div class="card ${hiddenClass}">
-                <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
+            <div class="card custom-rune-card" style="order: -1;">
                 <div class="card-header">
                     <div class="card-title ${rune.t}">${rune.r}</div>
                     <div class="card-chance" style="display:flex; justify-content:center; gap:5px; align-items:center;">
