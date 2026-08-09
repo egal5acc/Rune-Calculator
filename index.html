@@ -406,7 +406,10 @@ const DATA = {
         { r: "Sol Sovereign", c: "100Uvg", t: "celestial", s: [{n: "Golden Points", v: "×100", nd: "198"}, {n: "Power", v: "×15", nd: "1.4K"}, {n: "Icey", v: "×5", nd: "20K"}] },
         { r: "Cosmic", c: "1SpVg", t: "secret", s: [{n: "Power", v: "×250", nd: "498"}, {n: "Spirit Orbs", v: "×15", nd: "14K"}, {n: "Cash", v: "×15", nd: "14K"}] },
         { r: "Apocalyptic", c: "4Utg", t: "secret", s: [{n: "Credits", v: "×5", nd: "800"}, {n: "Fish Luck", v: "×25", nd: "6.78K"}, {n: "Player XP", v: "×1750", nd: "155.2K"}] },
-        { r: "Eternal Frost", c: "150Dtg", t: "secret", s: [{n: "Credits", v: "×10", nd: "110K"}, {n: "Fish Luck", v: "×45", nd: "48.7B"}, {n: "Aura Luck", v: "×3", nd: "625"}] }
+        { r: "Eternal Frost", c: "150Dtg", t: "secret", s: [{n: "Credits", v: "×10", nd: "110K"}, {n: "Fish Luck", v: "×45", nd: "48.7B"}, {n: "Aura Luck", v: "×3", nd: "625"}] },
+        
+        // --- CUSTOM RUNE HINZUGEFÜGT ---
+        { r: "Custom Rune", t: "unknown", isCustom: true }
     ],
     Starter: [
         { r: "Common", c: "1.00", t: "common", s: [{n: "Power", v: "+5", nd: "363"}] },
@@ -667,6 +670,12 @@ function calculateXP() {
     }
 }
 
+// Global function to store custom rune values
+function updateCustomRune(field, val) {
+    localStorage.setItem('slayer_v3_custom_' + field, val);
+    calculate();
+}
+
 function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
     const cloneNum = parseFloat(document.getElementById("clone").value) || 1;
@@ -711,7 +720,19 @@ function calculate() {
 
     let runeList = DATA[currentTab].map((rune, index) => {
         const isHidden = !!(hiddenRunes[currentTab] && hiddenRunes[currentTab][rune.r]);
-        const baseDenom = parseStringValue(rune.c);
+        
+        let baseDenom;
+        let customNeedVal = 0;
+
+        if (rune.isCustom) {
+            const customChanceStr = localStorage.getItem('slayer_v3_custom_chance') || '1M';
+            baseDenom = parseStringValue(customChanceStr);
+            const customNeedStr = localStorage.getItem('slayer_v3_custom_need') || '100';
+            customNeedVal = parseStringValue(customNeedStr);
+        } else {
+            baseDenom = parseStringValue(rune.c);
+        }
+        
         const currentDenom = baseDenom / luck;
         
         let isNA = (runsPerSec <= 0);
@@ -728,7 +749,9 @@ function calculate() {
             chanceStr: chanceStr,
             expStr: expStr,
             expectedDropsPerSec: expectedDropsPerSec,
-            isNA: isNA
+            isNA: isNA,
+            isCustom: rune.isCustom,
+            customNeedVal: customNeedVal
         };
     });
 
@@ -745,6 +768,44 @@ function calculate() {
         const eyeIcon = item.isHidden ? "🙈" : "👁️";
         const hiddenClass = item.isHidden ? "hidden-rune" : "";
 
+        // --- Custom Rune Input Generation ---
+        if (item.isCustom) {
+            const customChance = localStorage.getItem('slayer_v3_custom_chance') || '1M';
+            const customNeed = localStorage.getItem('slayer_v3_custom_need') || '100';
+            const remainingNeeded = Math.max(item.customNeedVal - currentOpens, 0);
+            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0) ? (remainingNeeded / item.expectedDropsPerSec) : 0;
+            const timeStr = (item.isNA || remainingNeeded <= 0) ? "0.0s" : formatTime(timeSec);
+
+            html += `
+            <div class="card ${hiddenClass}">
+                <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
+                <div class="card-header">
+                    <div class="card-title ${rune.t}">${rune.r}</div>
+                    <div class="card-chance" style="display:flex; justify-content:center; gap:5px; align-items:center;">
+                        Base: 1 in <input type="text" value="${customChance}" onchange="updateCustomRune('chance', this.value)" style="width: 70px; padding: 2px 5px; font-size: 12px; background: var(--bg-main); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none;" placeholder="z.B. 100K" />
+                        | Current: ${item.chanceStr}
+                    </div>
+                </div>
+                
+                <div class="stat-box ${rune.t}">
+                    <div class="stat-head">
+                        <span>Custom Calculator</span>
+                    </div>
+                    <div class="stat-details">
+                        <div style="display:flex; align-items:center; gap:5px;">Need: 
+                            <input type="text" value="${customNeed}" onchange="updateCustomRune('need', this.value)" style="width: 60px; padding: 2px 5px; font-size: 12px; background: var(--bg-main); border: 1px solid var(--border); color: #fff; border-radius: 4px; outline: none;" placeholder="Bedarf" />
+                        </div>
+                        <div style="display:flex; align-items:center;">Exp/sec: <span style="margin-left: 5px;">${item.expStr}</span></div>
+                        <div style="grid-column: span 2; margin-top:5px;">
+                            Time to Max: <span class="time-highlight">${timeStr}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            return; // Beende diesen Loop-Durchlauf (Custom-Rune ist fertig)
+        }
+
+        // --- Standard Rune Generation ---
         html += `
         <div class="card ${hiddenClass}">
             <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
