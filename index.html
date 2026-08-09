@@ -143,7 +143,6 @@
         position: relative;
     }
     
-    /* Zwingt die Custom Rune immer an die erste Stelle */
     .custom-rune-card {
         order: -1 !important;
     }
@@ -234,7 +233,6 @@
         </div>
 
         <div class="input-grid" id="xp-controls" style="display: none;">
-            <!-- XP & Leveling Section -->
             <div class="input-group">
                 <label>Current Level (S)</label>
                 <input type="number" id="xp-start" value="1126" min="1">
@@ -261,7 +259,6 @@
 
             <div class="section-divider"></div>
 
-            <!-- Spirit Orbs Section -->
             <div class="input-group">
                 <label>Spirit Orbs per Kill</label>
                 <div class="input-row">
@@ -281,11 +278,10 @@
                 <input type="text" id="orbs-time-result" readonly class="readonly-val" style="color: var(--c-legendary);">
             </div>
             
-            <div style="grid-column: span 2;"></div> <!-- Empty space for alignment -->
+            <div style="grid-column: span 2;"></div>
 
             <div class="section-divider"></div>
 
-            <!-- Aura Tokens Section -->
             <div class="input-group">
                 <label>Aura Tokens per Kill</label>
                 <div class="input-row">
@@ -413,7 +409,6 @@ const DATA = {
         { r: "Apocalyptic", c: "4Utg", t: "secret", s: [{n: "Credits", v: "×5", nd: "800"}, {n: "Fish Luck", v: "×25", nd: "6.78K"}, {n: "Player XP", v: "×1750", nd: "155.2K"}] },
         { r: "Eternal Frost", c: "150Dtg", t: "secret", s: [{n: "Credits", v: "×10", nd: "110K"}, {n: "Fish Luck", v: "×45", nd: "48.7B"}, {n: "Aura Luck", v: "×3", nd: "625"}] },
         
-        // --- CUSTOM RUNE HINZUGEFÜGT ---
         { r: "Custom Rune", t: "unknown", isCustom: true }
     ],
     Starter: [
@@ -634,9 +629,8 @@ function getMultiplier(suffixStr) {
 }
 
 function calculateXP() {
-    const killsPerSec = 4; // Feste Annahme: 1 Kill alle 0.25s
+    const killsPerSec = 4;
     
-    // --- 1. Level & XP Berechnung ---
     const S = parseFloat(document.getElementById("xp-start").value) || 0;
     const E = parseFloat(document.getElementById("xp-end").value) || 0;
     const xpPerHit = (parseFloat(document.getElementById("xp-per-hit-num").value) || 0) * getMultiplier(document.getElementById("xp-per-hit-suf").value);
@@ -654,7 +648,6 @@ function calculateXP() {
         document.getElementById("xp-time-result").value = "N/A";
     }
 
-    // --- 2. Spirit Orbs Berechnung ---
     const orbsPerKill = (parseFloat(document.getElementById("orbs-per-kill-num").value) || 0) * getMultiplier(document.getElementById("orbs-per-kill-suf").value);
     const targetOrbs = (parseFloat(document.getElementById("target-orbs-num").value) || 0) * getMultiplier(document.getElementById("target-orbs-suf").value);
     
@@ -664,7 +657,6 @@ function calculateXP() {
         document.getElementById("orbs-time-result").value = "Infinite / N/A";
     }
 
-    // --- 3. Aura Tokens Berechnung ---
     const tokensPerKill = (parseFloat(document.getElementById("tokens-per-kill-num").value) || 0) * getMultiplier(document.getElementById("tokens-per-kill-suf").value);
     const targetTokens = (parseFloat(document.getElementById("target-tokens-num").value) || 0) * getMultiplier(document.getElementById("target-tokens-suf").value);
     
@@ -675,7 +667,6 @@ function calculateXP() {
     }
 }
 
-// Global function to store custom rune values
 function updateCustomRune(field, val) {
     localStorage.setItem('slayer_v3_custom_' + field, val);
     calculate();
@@ -685,7 +676,6 @@ function calculate() {
     const speed = parseFloat(document.getElementById("speed").value) || 0;
     const cloneNum = parseFloat(document.getElementById("clone").value) || 1;
     const cloneMult = getMultiplier(document.getElementById("clone-suf").value);
-    const currentOpens = cloneNum * cloneMult;
     
     const errBox = document.getElementById("error-box");
     const statsBar = document.getElementById("global-stats-bar");
@@ -773,13 +763,13 @@ function calculate() {
         const eyeIcon = item.isHidden ? "🙈" : "👁️";
         const hiddenClass = item.isHidden ? "hidden-rune" : "";
 
-        // --- Custom Rune Input Generation ---
         if (item.isCustom) {
             const customChance = localStorage.getItem('slayer_v3_custom_chance') || '1M';
             const customNeed = localStorage.getItem('slayer_v3_custom_need') || '100';
-            const remainingNeeded = Math.max(item.customNeedVal - currentOpens, 0);
-            const timeSec = (!item.isNA && item.expectedDropsPerSec > 0) ? (remainingNeeded / item.expectedDropsPerSec) : 0;
-            const timeStr = (item.isNA || remainingNeeded <= 0) ? "0.0s" : formatTime(timeSec);
+            
+            // Korrigiert: Zeit basiert auf runsPerSec (Anzahl der Öffnungen/Rolls pro Sekunde)
+            const timeSec = (!item.isNA && runsPerSec > 0) ? (item.customNeedVal / runsPerSec) : 0;
+            const timeStr = (item.isNA || item.customNeedVal <= 0) ? "0.0s" : formatTime(timeSec);
 
             html += `
             <div class="card custom-rune-card" style="order: -1;">
@@ -806,10 +796,9 @@ function calculate() {
                     </div>
                 </div>
             </div>`;
-            return; // Beende diesen Loop-Durchlauf (Custom-Rune ist fertig)
+            return; 
         }
 
-        // --- Standard Rune Generation ---
         html += `
         <div class="card ${hiddenClass}">
             <div class="visibility-toggle" onclick="toggleRuneVisibility('${currentTab}', '${rune.r}')">${eyeIcon}</div>
@@ -823,9 +812,8 @@ function calculate() {
             const pityCurrent = Math.max(pityBase / luck, 1);
             const pityStr = item.isNA ? "N/A" : `1 in ${formatNum(pityCurrent)}`;
 
-            const targetOpens = pityCurrent;
             const pityRolls = Math.ceil(pityCurrent);
-            const progress = currentOpens % pityRolls;
+            const progress = (cloneNum * cloneMult) % pityRolls;
             const remainingOpens = progress === 0 ? pityRolls : pityRolls - progress;
             
             const timeSec = (!item.isNA && runsPerSec > 0 && remainingOpens > 0) ? (remainingOpens / runsPerSec) : 0;
@@ -861,10 +849,11 @@ function calculate() {
         } else if (rune.s) {
             rune.s.forEach(stat => {
                 const isStatUnknown = (stat.nd === "Unknown");
-                const needVal = isStatUnknown ? "Unknown" : parseStringValue(stat.nd);
-                const remainingNeeded = isStatUnknown ? 0 : Math.max(needVal - currentOpens, 0);
-                const timeSec = (!item.isNA && item.expectedDropsPerSec > 0 && !isStatUnknown) ? (remainingNeeded / item.expectedDropsPerSec) : 0;
-                const timeStr = (item.isNA || isStatUnknown || remainingNeeded <= 0) ? "0.0s" : formatTime(timeSec);
+                const needVal = isStatUnknown ? 0 : parseStringValue(stat.nd);
+                
+                // Korrigiert: Zeit für Stats basiert auf runsPerSec (Öffnungen pro Sekunde)
+                const timeSec = (!item.isNA && runsPerSec > 0 && !isStatUnknown) ? (needVal / runsPerSec) : 0;
+                const timeStr = (item.isNA || isStatUnknown || needVal <= 0) ? "0.0s" : formatTime(timeSec);
                 const needDisplay = isStatUnknown ? "Unknown" : formatNum(needVal);
 
                 html += `
